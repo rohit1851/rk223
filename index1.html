@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QUANTUM X — Crypto Investment Platform</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--gold:#C9A84C;--gl:#E8C97A;--gd:#8B6F30;--obs:#080B10;--dark:#0D1117;--s1:#111620;--s2:#161C28;--s3:#1C2333;--tx:#E8E4DC;--mu:#7A8099;--gr:#2ECC8A;--rd:#E05555;--bl:#5B8DEF;--pu:#9B59B6;--or:#E8873A;--b:rgba(201,168,76,.15);--bb:rgba(201,168,76,.4);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Montserrat',sans-serif;background:var(--obs);color:var(--tx);overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:var(--gd);border-radius:2px;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:15px 46px;background:rgba(8,11,16,.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--b);}
+.nlogo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:10px;}
+.nlogo span{font-style:italic;color:var(--gl);}
+.nlogo-icon{width:32px;height:32px;border:1px solid var(--bb);display:flex;align-items:center;justify-content:center;font-size:14px;}
+.nr{display:flex;align-items:center;gap:9px;}
+.nb{background:transparent;border:1px solid var(--bb);color:var(--mu);padding:7px 18px;font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.nb:hover{border-color:var(--gold);color:var(--gold);}
+.nb.solid{background:var(--gold);border-color:var(--gold);color:var(--obs);font-weight:700;}
+.nb.solid:hover{background:var(--gl);}
+.nav-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--obs);}
+.role-badge{font-size:8px;letter-spacing:.15em;text-transform:uppercase;padding:3px 8px;border:1px solid;}
+.role-badge.admin{background:rgba(91,141,239,.15);color:var(--bl);border-color:rgba(91,141,239,.3);}
+.role-badge.agent{background:rgba(232,135,58,.15);color:var(--or);border-color:rgba(232,135,58,.3);}
+.role-badge.support{background:rgba(155,89,182,.15);color:var(--pu);border-color:rgba(155,89,182,.3);}
+.role-badge.user{background:rgba(201,168,76,.15);color:var(--gold);border-color:var(--bb);}
+
+.page{display:none;}.page.active{display:block;}
+
+/* ── AUTH ── */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:90px 20px 50px;}
+.auth-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(201,168,76,.07) 0%,transparent 70%),linear-gradient(180deg,var(--obs) 0%,#0A0E18 100%);}
+.auth-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.03) 1px,transparent 1px);background-size:50px 50px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 20%,transparent 80%);}
+.auth-card{position:relative;z-index:1;width:100%;max-width:440px;background:var(--s1);border:1px solid var(--b);padding:44px;animation:fadeUp .5s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+.alogo{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:.35em;color:var(--gold);text-align:center;margin-bottom:5px;}
+.alogo span{font-style:italic;color:var(--gl);}
+.asub{text-align:center;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--mu);margin-bottom:34px;}
+.fg{margin-bottom:16px;}.fl{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--mu);display:block;margin-bottom:7px;}
+.fi{width:100%;background:var(--s2);border:1px solid var(--b);color:var(--tx);padding:11px 14px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;transition:border .3s;}.fi:focus{border-color:var(--gold);}.fi::placeholder{color:var(--mu);font-size:11px;}
+.fsel{width:100%;background:var(--s2);border:1px solid var(--b);color:var(--tx);padding:11px 14px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;cursor:pointer;}.fsel:focus{border-color:var(--gold);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.abtn{width:100%;padding:13px;background:var(--gold);border:none;color:var(--obs);font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.25em;text-transform:uppercase;font-weight:700;cursor:pointer;transition:all .3s;margin-top:5px;}.abtn:hover{background:var(--gl);box-shadow:0 8px 28px rgba(201,168,76,.25);}
+.asw{text-align:center;margin-top:20px;font-size:11px;color:var(--mu);}.asw a{color:var(--gold);cursor:pointer;}
+.aerr{color:var(--rd);font-size:11px;margin-bottom:13px;text-align:center;display:none;padding:9px;background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.2);}
+.adiv{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--mu);font-size:10px;letter-spacing:.2em;}.adiv::before,.adiv::after{content:'';flex:1;height:1px;background:var(--b);}
+.dbox{background:var(--s2);border:1px solid var(--b);padding:12px 14px;font-size:10px;color:var(--mu);line-height:2;}.dbox strong{color:var(--gold);}
+
+/* ── LANDING ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:120px 60px 80px;text-align:center;}
+.hbg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(201,168,76,.07) 0%,transparent 70%),linear-gradient(180deg,var(--obs) 0%,#0A0E18 100%);}
+.hgrid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(201,168,76,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 80%);}
+.orb{position:absolute;width:500px;height:500px;border-radius:50%;z-index:0;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:orbP 6s ease-in-out infinite;}
+@keyframes orbP{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.15);opacity:.6;}}
+
+/* Floating crypto icons */
+.float-coins{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.fc{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;border:1px solid;opacity:.15;animation:floatCoin linear infinite;}
+@keyframes floatCoin{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-120px) rotate(360deg);}}
+
+.eyebrow{position:relative;z-index:1;font-size:10px;letter-spacing:.5em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:14px;animation:fadeUp .8s ease forwards;}
+.eyebrow::before,.eyebrow::after{content:'';display:block;width:36px;height:1px;background:var(--gd);}
+.htitle{position:relative;z-index:1;font-family:'Cormorant Garamond',serif;font-size:clamp(48px,8vw,106px);font-weight:300;line-height:.94;color:var(--tx);margin-bottom:8px;animation:fadeUp .8s .15s ease both;}
+.htitle em{font-style:italic;color:var(--gold);display:block;}
+.hsub{position:relative;z-index:1;font-size:13px;letter-spacing:.08em;color:var(--mu);max-width:460px;line-height:1.8;margin:26px auto;animation:fadeUp .8s .3s ease both;}
+.hacts{position:relative;z-index:1;display:flex;gap:14px;justify-content:center;animation:fadeUp .8s .45s ease both;flex-wrap:wrap;}
+.hstats{position:relative;z-index:1;display:flex;gap:52px;margin-top:68px;animation:fadeUp .8s .6s ease both;flex-wrap:wrap;justify-content:center;}
+.si{text-align:center;}.sn{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:var(--gold);line-height:1;}.sl{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--mu);margin-top:5px;}.sdiv{width:1px;background:var(--b);align-self:stretch;}
+.bp{background:var(--gold);border:none;color:var(--obs);padding:15px 40px;font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.25em;text-transform:uppercase;font-weight:700;cursor:pointer;transition:all .3s;}.bp:hover{background:var(--gl);transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.3);}
+.bg{background:transparent;border:1px solid var(--bb);color:var(--tx);padding:15px 40px;font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.25em;text-transform:uppercase;cursor:pointer;transition:all .3s;}.bg:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px);}
+
+/* TRADING VISUALS SECTION */
+.trading-sec{padding:80px 60px;background:var(--s1);border-top:1px solid var(--b);border-bottom:1px solid var(--b);}
+.trading-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;background:var(--b);border:1px solid var(--b);margin-top:50px;}
+.tcard{background:var(--s1);padding:32px 28px;position:relative;overflow:hidden;transition:background .3s;}
+.tcard:hover{background:var(--s2);}
+.tcard-icon{font-size:40px;margin-bottom:18px;display:block;}
+.tcard-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--tx);margin-bottom:10px;}
+.tcard-title em{font-style:italic;color:var(--gold);}
+.tcard-desc{font-size:11px;color:var(--mu);line-height:1.8;letter-spacing:.05em;}
+.tcard-stat{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--gold);margin-top:18px;}
+.tcard-stl{font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--mu);}
+.tcard::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform .4s;}
+.tcard:hover::before{transform:scaleX(1);}
+
+/* CRYPTO IMAGE CARDS */
+.crypto-visual{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--b);border:1px solid var(--b);margin-top:50px;}
+.cv-card{background:var(--s1);padding:24px;text-align:center;transition:background .3s;position:relative;overflow:hidden;}
+.cv-card:hover{background:var(--s2);}
+.cv-img{width:64px;height:64px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;border:2px solid;position:relative;}
+.cv-img::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid;opacity:.3;animation:pulse-ring 2s ease-in-out infinite;}
+@keyframes pulse-ring{0%,100%{transform:scale(1);opacity:.3;}50%{transform:scale(1.1);opacity:.1;}}
+.cv-name{font-size:13px;font-weight:600;letter-spacing:.05em;margin-bottom:4px;}
+.cv-sym{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.cv-price{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);}
+.cv-chg{font-size:10px;margin-top:3px;}
+.cv-chg.up{color:var(--gr);}.cv-chg.dn{color:var(--rd);}
+.cv-bar{height:3px;background:var(--s3);border-radius:2px;margin-top:12px;overflow:hidden;}
+.cv-bar-fill{height:100%;border-radius:2px;transition:width .6s;}
+
+/* SECTIONS */
+.sec{padding:80px 60px;}.sec-hdr{text-align:center;margin-bottom:50px;}
+.sec-eye{font-size:10px;letter-spacing:.5em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.sec-eye::before,.sec-eye::after{content:'';display:block;width:26px;height:1px;background:var(--gd);}
+.stitle{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5vw,60px);font-weight:300;line-height:1.1;}.stitle em{font-style:italic;color:var(--gold);}
+.tick-wrap{overflow:hidden;border-top:1px solid var(--b);border-bottom:1px solid var(--b);padding:13px 0;background:var(--s1);}
+.tick-track{display:flex;gap:54px;width:max-content;animation:ticker 30s linear infinite;}
+@keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.ti{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;white-space:nowrap;}.ts{color:var(--gold);font-weight:700;}.tc.up{color:var(--gr);}.tc.dn{color:var(--rd);}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px;background:var(--b);border:1px solid var(--b);}
+.pc{background:var(--s1);padding:24px 20px;transition:background .3s;position:relative;overflow:hidden;}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform .4s;}
+.pc:hover{background:var(--s2);}.pc:hover::before{transform:scaleX(1);}
+.ci{display:flex;align-items:center;gap:10px;margin-bottom:16px;}.cic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;border:1px solid var(--bb);}
+.cn{font-size:13px;font-weight:500;}.csym{font-size:10px;letter-spacing:.15em;color:var(--mu);margin-top:2px;}
+.cprice{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;}.cch{font-size:11px;}.cch.up{color:var(--gr);}.cch.dn{color:var(--rd);}.cch.up::before{content:'▲ ';font-size:8px;}.cch.dn::before{content:'▼ ';font-size:8px;}
+.mc{height:42px;margin-top:12px;display:flex;align-items:flex-end;gap:2px;}.bar{flex:1;border-radius:1px 1px 0 0;}
+.plans-bg{background:var(--s1);border-top:1px solid var(--b);border-bottom:1px solid var(--b);}
+.pgr{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--b);}
+.pcard{padding:44px 36px;border-right:1px solid var(--b);position:relative;overflow:hidden;}
+.pcard:last-child{border-right:none;}.pcard.feat{background:var(--s2);}
+.pcard.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.pbadge{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:inline-block;padding:4px 12px;border:1px solid var(--bb);}
+.pname{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;margin-bottom:6px;}
+.ptag2{font-size:11px;color:var(--mu);letter-spacing:.1em;margin-bottom:32px;}
+.pprow{display:flex;align-items:baseline;gap:5px;margin-bottom:6px;}.pcur{font-size:14px;color:var(--gold);}
+.pamt{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;line-height:1;}
+.pper{font-size:11px;color:var(--mu);align-self:flex-end;padding-bottom:7px;}
+.pret{font-size:12px;color:var(--gl);margin-bottom:32px;letter-spacing:.05em;}
+.pfeat{list-style:none;margin-bottom:36px;}.pfeat li{font-size:12px;letter-spacing:.05em;color:var(--mu);padding:8px 0;border-bottom:1px solid var(--b);display:flex;gap:10px;align-items:center;}.pfeat li::before{content:'◆';font-size:6px;color:var(--gold);flex-shrink:0;}
+.pbtn{width:100%;padding:12px;font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:.25em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.pbtn.out{background:transparent;border:1px solid var(--bb);color:var(--tx);}.pbtn.out:hover{border-color:var(--gold);color:var(--gold);}
+.pbtn.sol{background:var(--gold);border:none;color:var(--obs);font-weight:700;}.pbtn.sol:hover{background:var(--gl);}
+footer{padding:50px 60px;border-top:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;}
+.flogo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:.3em;color:var(--gold);}
+.fcopy{font-size:11px;color:var(--mu);}
+.flinks{display:flex;gap:22px;}.flinks a{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu);text-decoration:none;transition:color .3s;}.flinks a:hover{color:var(--gold);}
+
+/* ── SHARED DASHBOARD LAYOUT ── */
+.dash{padding:84px 38px 56px;min-height:100vh;}
+.dh{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;flex-wrap:wrap;gap:14px;}
+.dgreet{font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--mu);letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px;}
+.dname{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;}.dname em{font-style:italic;color:var(--gold);}
+.ddate{font-size:11px;color:var(--mu);letter-spacing:.1em;}
+.krow{display:grid;gap:2px;background:var(--b);}
+.kc{background:var(--s1);padding:24px;}.kl{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.kv{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;line-height:1;}.kv.gold{color:var(--gold);}.kv.green{color:var(--gr);}.kv.red{color:var(--rd);}
+.kd{font-size:10px;margin-top:6px;}.kd.up{color:var(--gr);}.kd.dn{color:var(--rd);}
+.panel{background:var(--s1);padding:28px;}
+.ptitle{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--mu);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;}.ptitle span{color:var(--gold);}
+.chart-area{height:200px;}.chart-svg{width:100%;height:100%;}
+.ctabs{display:flex;gap:2px;margin-bottom:16px;}.ctab{padding:5px 12px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--b);background:transparent;color:var(--mu);cursor:pointer;transition:all .3s;}.ctab.active{background:var(--gold);border-color:var(--gold);color:var(--obs);font-weight:700;}
+.txrow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--b);}
+.txl{display:flex;align-items:center;gap:11px;}.txic{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--b);}
+.txi{font-size:11px;}.txid{font-size:9px;color:var(--mu);margin-top:2px;}
+.txa{font-family:'Cormorant Garamond',serif;font-size:16px;}.txa.cr{color:var(--gr);}.txa.db{color:var(--rd);}
+.mrow{display:grid;grid-template-columns:1fr 1fr 70px 60px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--b);font-size:12px;}
+.msym{color:var(--gold);font-weight:700;letter-spacing:.1em;}.mprice{font-family:'Cormorant Garamond',serif;font-size:14px;}.mch.up{color:var(--gr);}.mch.dn{color:var(--rd);}
+.spark{display:flex;align-items:flex-end;gap:1px;height:24px;}.sp{width:3px;border-radius:1px 1px 0 0;}
+.tx-badge{font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;}
+.tx-badge.deposit{background:rgba(46,204,138,.12);color:var(--gr);border:1px solid rgba(46,204,138,.25);}
+.tx-badge.withdrawal{background:rgba(224,85,85,.12);color:var(--rd);border:1px solid rgba(224,85,85,.25);}
+.tx-badge.profit{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.25);}
+.tx-badge.adjustment{background:rgba(91,141,239,.12);color:var(--bl);border:1px solid rgba(91,141,239,.3);}
+.tx-badge.bonus{background:rgba(155,89,182,.12);color:var(--pu);border:1px solid rgba(155,89,182,.3);}
+
+/* Wallet */
+.wcard{background:var(--s2);border:1px solid var(--bb);padding:18px;margin-bottom:12px;cursor:pointer;transition:border .3s;}.wcard:hover{border-color:var(--gold);}
+.wcoin{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.wcic{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:1px solid var(--bb);}
+.wcn{font-size:12px;font-weight:600;}.wcnet{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--mu);margin-top:1px;}
+.waddr{font-size:10px;color:var(--gl);font-family:monospace;word-break:break-all;line-height:1.5;margin-bottom:7px;}
+.cpybtn{font-size:8px;letter-spacing:.15em;text-transform:uppercase;background:transparent;border:1px solid var(--bb);color:var(--mu);padding:4px 10px;cursor:pointer;transition:all .3s;float:right;margin-bottom:6px;}.cpybtn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* Profit stats */
+.pstats{display:grid;gap:2px;background:var(--b);}
+.ps{background:var(--s1);padding:20px 22px;}.psl{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--mu);margin-bottom:9px;}
+.psv{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;}
+
+/* ── ADMIN / AGENT / SUPPORT ── */
+.adm-wrap{padding:84px 38px 56px;min-height:100vh;}
+.adm-hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+.adm-tl{font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.adm-title{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;}.adm-title em{font-style:italic;color:var(--gold);}
+.akpis{display:grid;gap:2px;background:var(--b);margin-bottom:2px;}
+.ak{background:var(--s1);padding:18px 20px;}.akl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--mu);margin-bottom:8px;}
+.akv{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;}.akv.gold{color:var(--gold);}.akv.green{color:var(--gr);}.akv.red{color:var(--rd);}.akv.blue{color:var(--bl);}.akv.orange{color:var(--or);}
+.aksub{font-size:9px;color:var(--mu);margin-top:3px;}
+.atabs{display:flex;flex-wrap:wrap;gap:0;margin-bottom:2px;}
+.atab{padding:10px 22px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;background:var(--s1);border:none;border-right:1px solid var(--b);color:var(--mu);cursor:pointer;transition:all .3s;}.atab:last-child{border-right:none;}.atab.active{background:var(--s2);color:var(--gold);border-bottom:2px solid var(--gold);}
+.atab-c{display:none;}.atab-c.active{display:block;}
+.cpw{background:var(--s1);}
+.ttb{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--b);flex-wrap:wrap;gap:10px;}
+.si2{background:var(--s2);border:1px solid var(--b);color:var(--tx);padding:7px 12px;font-family:'Montserrat',sans-serif;font-size:11px;outline:none;width:230px;transition:border .3s;}.si2:focus{border-color:var(--gold);}.si2::placeholder{color:var(--mu);}
+.tbtn{padding:6px 14px;font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .3s;border:1px solid var(--b);}
+.tbtn.g{background:transparent;color:var(--mu);}.tbtn.g:hover{border-color:var(--gold);color:var(--gold);}
+.tbtn.gold{background:var(--gold);border-color:var(--gold);color:var(--obs);font-weight:700;}.tbtn.gold:hover{background:var(--gl);}
+.dt{width:100%;border-collapse:collapse;}
+.dt th{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--mu);padding:10px 18px;text-align:left;border-bottom:1px solid var(--b);font-weight:500;}
+.dt td{padding:12px 18px;border-bottom:1px solid var(--b);font-size:11px;vertical-align:middle;}
+.dt tr:last-child td{border-bottom:none;}.dt tr:hover td{background:var(--s2);}
+.ucel{display:flex;align-items:center;gap:10px;}.uav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--obs);flex-shrink:0;}
+.uname{font-size:11px;font-weight:500;}.uemail{font-size:9px;color:var(--mu);margin-top:1px;}
+.sbadge{font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;}
+.sbadge.active{background:rgba(46,204,138,.12);color:var(--gr);border:1px solid rgba(46,204,138,.25);}
+.sbadge.suspended{background:rgba(224,85,85,.12);color:var(--rd);border:1px solid rgba(224,85,85,.25);}
+.sbadge.pending{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.25);}
+.ptag{font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--b);}
+.ptag.silver{color:var(--mu);}.ptag.gold{color:var(--gold);border-color:var(--bb);}.ptag.obsidian{color:var(--bl);border-color:rgba(91,141,239,.3);}
+.abtns{display:flex;gap:4px;flex-wrap:wrap;}
+.ibtn{padding:4px 8px;border:1px solid var(--b);background:transparent;color:var(--mu);cursor:pointer;font-size:8px;letter-spacing:.1em;text-transform:uppercase;transition:all .3s;white-space:nowrap;}
+.ibtn:hover{border-color:var(--gold);color:var(--gold);}.ibtn.d:hover{border-color:var(--rd);color:var(--rd);}.ibtn.s:hover{border-color:var(--gr);color:var(--gr);}
+
+/* Wallet admin */
+.wac{display:grid;gap:2px;background:var(--b);margin-bottom:16px;}
+.wacc{background:var(--s2);padding:20px;}
+.wacc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.wacc-coin{display:flex;align-items:center;gap:9px;}
+.wacc-ic{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:1px solid var(--bb);}
+.wacc-name{font-size:12px;font-weight:600;}.wacc-net{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:var(--mu);}
+.wacc-edit{padding:4px 9px;background:transparent;border:1px solid var(--bb);color:var(--gold);font-size:8px;letter-spacing:.13em;text-transform:uppercase;cursor:pointer;transition:all .3s;}.wacc-edit:hover{background:var(--gold);color:var(--obs);}
+.wacc-addr{font-size:10px;color:var(--gl);font-family:monospace;word-break:break-all;line-height:1.5;margin-bottom:7px;}
+.wacc-dep{font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--gold);}
+
+/* ── MODALS ── */
+.mo{position:fixed;inset:0;background:rgba(8,11,16,.9);backdrop-filter:blur(12px);z-index:500;display:none;align-items:center;justify-content:center;padding:18px;}
+.mo.open{display:flex;}
+.mbox{background:var(--s1);border:1px solid var(--b);width:560px;max-width:96vw;max-height:88vh;overflow-y:auto;animation:fadeUp .3s ease;}
+.mhdr{padding:24px 28px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;}
+.mtitle{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;}
+.mclose{background:transparent;border:1px solid var(--b);color:var(--mu);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .3s;}.mclose:hover{border-color:var(--gold);color:var(--gold);}
+.mbody{padding:24px 28px;}
+.msec{margin-bottom:20px;}.msect{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.mfield{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--b);font-size:11px;}
+.mfl{color:var(--mu);letter-spacing:.05em;}.mfv{font-family:'Cormorant Garamond',serif;font-size:14px;}
+.macts{padding:16px 28px;border-top:1px solid var(--b);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;}
+.mbtn{padding:8px 20px;font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.mbtn.cancel{background:transparent;border:1px solid var(--b);color:var(--mu);}.mbtn.cancel:hover{border-color:var(--gold);color:var(--gold);}
+.mbtn.susp{background:transparent;border:1px solid rgba(224,85,85,.4);color:var(--rd);}.mbtn.susp:hover{background:rgba(224,85,85,.1);}
+.mbtn.actv{background:var(--gr);border:none;color:var(--obs);font-weight:700;}
+.mbtn.prim{background:var(--gold);border:none;color:var(--obs);font-weight:700;}.mbtn.prim:hover{background:var(--gl);}
+
+/* ── AI CHAT ── */
+.ai-fab{position:fixed;bottom:28px;right:28px;z-index:400;width:52px;height:52px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 24px rgba(201,168,76,.4);transition:all .3s;animation:fadeUp .5s 1s ease both;}
+.ai-fab:hover{background:var(--gl);transform:scale(1.08);}
+.ai-window{position:fixed;bottom:90px;right:28px;z-index:400;width:360px;max-width:calc(100vw - 40px);height:500px;background:var(--s1);border:1px solid var(--b);display:none;flex-direction:column;animation:fadeUp .3s ease;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.ai-window.open{display:flex;}
+.ai-hdr{padding:16px 20px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--s2);}
+.ai-hdr-l{display:flex;align-items:center;gap:10px;}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:var(--gr);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.ai-title{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);}
+.ai-sub{font-size:9px;color:var(--mu);margin-top:1px;}
+.ai-close-btn{background:transparent;border:none;color:var(--mu);cursor:pointer;font-size:16px;padding:2px;transition:color .3s;}.ai-close-btn:hover{color:var(--gold);}
+.ai-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.ai-msg{max-width:85%;padding:10px 13px;font-size:11px;line-height:1.6;letter-spacing:.03em;}
+.ai-msg.bot{background:var(--s2);border:1px solid var(--b);align-self:flex-start;color:var(--tx);}
+.ai-msg.user{background:var(--gold);color:var(--obs);align-self:flex-end;font-weight:600;}
+.ai-msg.thinking{background:var(--s2);border:1px solid var(--b);align-self:flex-start;color:var(--mu);font-style:italic;}
+.ai-inp-row{padding:12px;border-top:1px solid var(--b);display:flex;gap:8px;}
+.ai-inp{flex:1;background:var(--s2);border:1px solid var(--b);color:var(--tx);padding:9px 12px;font-family:'Montserrat',sans-serif;font-size:11px;outline:none;transition:border .3s;}.ai-inp:focus{border-color:var(--gold);}
+.ai-send{padding:9px 16px;background:var(--gold);border:none;color:var(--obs);font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .3s;font-weight:700;}.ai-send:hover{background:var(--gl);}
+.ai-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
+.ai-chip{padding:5px 10px;background:transparent;border:1px solid var(--b);color:var(--mu);font-size:9px;letter-spacing:.1em;cursor:pointer;transition:all .3s;}.ai-chip:hover{border-color:var(--gold);color:var(--gold);}
+
+/* Customer Support panel */
+.ticket-card{background:var(--s2);border:1px solid var(--b);padding:18px;margin-bottom:10px;cursor:pointer;transition:border .3s;position:relative;}
+.ticket-card:hover{border-color:var(--gold);}
+.ticket-card.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);}
+.ticket-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.ticket-user{font-size:12px;font-weight:600;}.ticket-time{font-size:9px;color:var(--mu);}
+.ticket-subject{font-size:11px;color:var(--tx);margin-bottom:5px;}
+.ticket-preview{font-size:10px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ticket-status{font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border:1px solid;}
+.ticket-status.open{color:var(--gold);border-color:var(--bb);}
+.ticket-status.resolved{color:var(--gr);border-color:rgba(46,204,138,.3);}
+.ticket-status.pending{color:var(--mu);border-color:var(--b);}
+
+/* TOAST */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(70px);z-index:999;background:var(--s1);border:1px solid var(--b);padding:13px 22px;font-size:11px;letter-spacing:.05em;display:flex;align-items:center;gap:10px;opacity:0;transition:all .4s;pointer-events:none;min-width:260px;max-width:420px;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ── INQUIRY FORM ── */
+.inq-sec{padding:90px 60px;background:var(--obs);border-top:1px solid var(--b);}
+.inq-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;max-width:1100px;margin:0 auto;}
+.inq-left{}.inq-eye{font-size:10px;letter-spacing:.5em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.inq-eye::before{content:'';display:block;width:28px;height:1px;background:var(--gd);}
+.inq-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,54px);font-weight:300;line-height:1.1;margin-bottom:18px;}.inq-title em{font-style:italic;color:var(--gold);}
+.inq-desc{font-size:12px;color:var(--mu);line-height:1.9;letter-spacing:.05em;margin-bottom:32px;}
+.inq-info{display:flex;flex-direction:column;gap:14px;}
+.inq-info-item{display:flex;align-items:center;gap:13px;font-size:12px;color:var(--mu);}
+.inq-info-icon{width:36px;height:36px;border:1px solid var(--bb);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.inq-info-text strong{display:block;color:var(--tx);font-size:11px;letter-spacing:.05em;margin-bottom:2px;}
+.inq-form{background:var(--s1);border:1px solid var(--b);padding:40px;position:relative;overflow:hidden;}
+.inq-form::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.inq-form-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;margin-bottom:24px;}
+.inq-form-title em{font-style:italic;color:var(--gold);}
+.inq-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.inq-group{margin-bottom:16px;}
+.inq-label{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--mu);display:block;margin-bottom:7px;}
+.inq-input{width:100%;background:var(--s2);border:1px solid var(--b);color:var(--tx);padding:11px 14px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;transition:border .3s;}.inq-input:focus{border-color:var(--gold);}.inq-input::placeholder{color:var(--mu);font-size:11px;}
+.inq-select{width:100%;background:var(--s2);border:1px solid var(--b);color:var(--tx);padding:11px 14px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;cursor:pointer;transition:border .3s;}.inq-select:focus{border-color:var(--gold);}
+.inq-textarea{width:100%;background:var(--s2);border:1px solid var(--b);color:var(--tx);padding:11px 14px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;resize:vertical;min-height:110px;transition:border .3s;}.inq-textarea:focus{border-color:var(--gold);}.inq-textarea::placeholder{color:var(--mu);font-size:11px;}
+.inq-submit{width:100%;padding:14px;background:var(--gold);border:none;color:var(--obs);font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.25em;text-transform:uppercase;font-weight:700;cursor:pointer;transition:all .3s;margin-top:4px;}.inq-submit:hover{background:var(--gl);box-shadow:0 8px 28px rgba(201,168,76,.25);}
+.inq-success{display:none;text-align:center;padding:32px;background:rgba(46,204,138,.06);border:1px solid rgba(46,204,138,.2);}
+.inq-success-icon{font-size:40px;margin-bottom:12px;}
+.inq-success-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--gr);margin-bottom:8px;}
+.inq-success-msg{font-size:11px;color:var(--mu);line-height:1.8;}
+/* Inquiry admin badge */
+.inq-badge{font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;background:rgba(232,135,58,.12);color:var(--or);border:1px solid rgba(232,135,58,.3);}
+.inq-card{background:var(--s2);border:1px solid var(--b);padding:18px;margin-bottom:10px;transition:border .3s;position:relative;}
+.inq-card:hover{border-color:var(--gold);}
+.inq-card.new::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--or);}
+.inq-card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
+.inq-card-name{font-size:12px;font-weight:600;}.inq-card-date{font-size:9px;color:var(--mu);}
+.inq-card-sub{font-size:11px;color:var(--tx);margin-bottom:4px;font-weight:500;}
+.inq-card-det{font-size:10px;color:var(--mu);margin-bottom:8px;}
+.inq-card-msg{font-size:11px;color:var(--mu);line-height:1.7;padding:10px;background:var(--s3);border-left:2px solid var(--bb);}
+.inq-card-acts{display:flex;gap:6px;margin-top:10px;}
+@media(max-width:1100px){.trading-grid{grid-template-columns:1fr 1fr;}.crypto-visual{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:768px){nav{padding:12px 16px;}.hero{padding:110px 18px 60px;}.hstats{gap:20px;}.sec{padding:55px 18px;}.pgr{grid-template-columns:1fr;}.pcard{border-right:none;border-bottom:1px solid var(--b);}.trading-grid{grid-template-columns:1fr;}.crypto-visual{grid-template-columns:1fr 1fr;}.ai-window{width:calc(100vw - 40px);}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nlogo" onclick="goto('landing')">
+    <div class="nlogo-icon">⚡</div>
+    QUANTUM <span>X</span>
+  </div>
+  <div class="nr" id="nav-r">
+    <button class="nb" onclick="goto('signin')">Sign In</button>
+    <button class="nb solid" onclick="goto('signup')">Get Started</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ LANDING ═══════════════ -->
+<div id="page-landing" class="page active">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hbg"></div><div class="hgrid"></div><div class="orb"></div>
+    <div class="float-coins" id="float-coins"></div>
+    <div class="eyebrow">Institutional Crypto Investment</div>
+    <h1 class="htitle">Where Wealth<br>Meets <em>Digital Gold</em></h1>
+    <p class="hsub">Quantum X unites institutional-grade crypto strategy with uncompromising elegance. Build lasting wealth in the digital frontier — powered by AI.</p>
+    <div class="hacts">
+      <button class="bp" onclick="goto('signup')">Open Account</button>
+      <button class="bg" onclick="document.getElementById('plans-sec').scrollIntoView({behavior:'smooth'})">View Plans</button>
+    </div>
+    <div class="hstats">
+      <div class="si"><div class="sn">$4.2B</div><div class="sl">Assets Managed</div></div><div class="sdiv"></div>
+      <div class="si"><div class="sn">38K</div><div class="sl">Investors</div></div><div class="sdiv"></div>
+      <div class="si"><div class="sn">127%</div><div class="sl">Avg. Annual Return</div></div><div class="sdiv"></div>
+      <div class="si"><div class="sn">99.9%</div><div class="sl">Uptime</div></div>
+    </div>
+  </section>
+
+  <!-- Ticker -->
+  <div class="tick-wrap"><div class="tick-track" id="ticker"></div></div>
+
+  <!-- Crypto Visual Cards -->
+  <section class="sec" style="padding-top:60px;">
+    <div class="sec-hdr">
+      <div class="sec-eye">Live Market</div>
+      <h2 class="stitle">Real-Time <em>Crypto Prices</em></h2>
+    </div>
+    <div class="crypto-visual" id="crypto-visual"></div>
+  </section>
+
+  <!-- Trading & Profit Visual -->
+  <section class="trading-sec">
+    <div class="sec-hdr">
+      <div class="sec-eye">Why Quantum X</div>
+      <h2 class="stitle">Built for <em>Serious Returns</em></h2>
+    </div>
+    <div class="trading-grid">
+      <div class="tcard">
+        <span class="tcard-icon">📊</span>
+        <div class="tcard-title">AI-Powered <em>Trading</em></div>
+        <div class="tcard-desc">Our proprietary algorithms analyze 10,000+ signals per second across all major exchanges to execute optimal trades 24/7.</div>
+        <div class="tcard-stat">99.7%</div>
+        <div class="tcard-stl">Uptime execution rate</div>
+      </div>
+      <div class="tcard">
+        <span class="tcard-icon">💰</span>
+        <div class="tcard-title">Verified <em>Profits</em></div>
+        <div class="tcard-desc">Every trade and profit is recorded on-chain and verified. Full transparency on where your returns come from, always.</div>
+        <div class="tcard-stat">127%</div>
+        <div class="tcard-stl">Average annual ROI</div>
+      </div>
+      <div class="tcard">
+        <span class="tcard-icon">🔐</span>
+        <div class="tcard-title">Cold Wallet <em>Security</em></div>
+        <div class="tcard-desc">95% of assets stored in hardware wallets with multi-sig authorization. Insurance-backed custody for complete peace of mind.</div>
+        <div class="tcard-stat">$4.2B</div>
+        <div class="tcard-stl">Assets secured</div>
+      </div>
+      <div class="tcard">
+        <span class="tcard-icon">🤖</span>
+        <div class="tcard-title">AI <em>Assistant</em></div>
+        <div class="tcard-desc">Our on-platform AI advisor answers your questions about crypto markets, investment strategy, and your portfolio 24/7.</div>
+        <div class="tcard-stat">24/7</div>
+        <div class="tcard-stl">Intelligent support</div>
+      </div>
+      <div class="tcard">
+        <span class="tcard-icon">📈</span>
+        <div class="tcard-title">Portfolio <em>Analytics</em></div>
+        <div class="tcard-desc">Real-time dashboards with profit tracking, ROI metrics, and allocation insights — all in one elegant interface.</div>
+        <div class="tcard-stat">+34%</div>
+        <div class="tcard-stl">Average Gold plan return</div>
+      </div>
+      <div class="tcard">
+        <span class="tcard-icon">🌐</span>
+        <div class="tcard-title">Global <em>Coverage</em></div>
+        <div class="tcard-desc">Trade on 40+ exchanges worldwide simultaneously. Arbitrage, spot, and futures strategies running in parallel for maximum yield.</div>
+        <div class="tcard-stat">40+</div>
+        <div class="tcard-stl">Exchange integrations</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Price Grid -->
+  <section class="sec plans-bg" style="padding-top:60px;">
+    <div class="sec-hdr"><div class="sec-eye">All Assets</div><h2 class="stitle"><em>Crypto</em> Market Data</h2></div>
+    <div class="pgrid" id="price-grid"></div>
+  </section>
+
+  <!-- Plans -->
+  <section id="plans-sec" class="sec">
+    <div class="sec-hdr"><div class="sec-eye">Investment Tiers</div><h2 class="stitle">Choose Your <em>Path to Wealth</em></h2></div>
+    <div class="pgr">
+      <div class="pcard"><div class="pbadge">Tier I</div><div class="pname">Silver</div><div class="ptag2">Begin your journey</div><div class="pprow"><span class="pcur">$</span><span class="pamt">500</span><span class="pper">min.</span></div><div class="pret">↑ Up to 18% annual</div><ul class="pfeat"><li>20+ cryptocurrencies</li><li>Weekly reports</li><li>AI rebalancing</li><li>Email support</li></ul><button class="pbtn out" onclick="goto('signup')">Begin with Silver</button></div>
+      <div class="pcard feat"><div class="pbadge">Most Popular — Tier II</div><div class="pname">Gold</div><div class="ptag2">The standard of serious investors</div><div class="pprow"><span class="pcur">$</span><span class="pamt">5,000</span><span class="pper">min.</span></div><div class="pret">↑ Up to 34% annual</div><ul class="pfeat"><li>80+ cryptocurrencies</li><li>Daily analytics</li><li>Priority rebalancing</li><li>Dedicated manager</li><li>Advanced risk controls</li></ul><button class="pbtn sol" onclick="goto('signup')">Begin with Gold</button></div>
+      <div class="pcard"><div class="pbadge">Tier III</div><div class="pname">Obsidian</div><div class="ptag2">Institutional management</div><div class="pprow"><span class="pcur">$</span><span class="pamt">50K</span><span class="pper">min.</span></div><div class="pret">↑ Up to 60% annual</div><ul class="pfeat"><li>Unlimited assets</li><li>Real-time API</li><li>Custom strategy</li><li>24/7 concierge</li><li>OTC trading</li></ul><button class="pbtn out" onclick="goto('signup')">Begin with Obsidian</button></div>
+    </div>
+  </section>
+
+
+  <!-- INQUIRY FORM -->
+  <section id="inquiry-sec" class="inq-sec">
+    <div class="inq-wrap">
+      <div class="inq-left">
+        <div class="inq-eye">Get In Touch</div>
+        <h2 class="inq-title">Start Your <em>Investment Journey</em> Today</h2>
+        <p class="inq-desc">Whether you're a first-time investor or managing a large portfolio, our team is ready to help you find the right plan. Fill out the form and we'll be in touch within 24 hours.</p>
+        <div class="inq-info">
+          <div class="inq-info-item"><div class="inq-info-icon">&#x1F4E7;</div><div class="inq-info-text"><strong>Email Us</strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a2d1d7d2d2cdd0d6e2d3d7c3ccd6d7cfcbccd4c7d1d6cfc7ccd68ccdd0c5">[email&#160;protected]</a></div></div>
+          <div class="inq-info-item"><div class="inq-info-icon">&#x1F4AC;</div><div class="inq-info-text"><strong>Live Chat</strong>Available 24/7 via AI Advisor</div></div>
+          <div class="inq-info-item"><div class="inq-info-icon">&#x23F1;&#xFE0F;</div><div class="inq-info-text"><strong>Response Time</strong>Within 24 business hours</div></div>
+          <div class="inq-info-item"><div class="inq-info-icon">&#x1F512;</div><div class="inq-info-text"><strong>100% Confidential</strong>Your data is never shared</div></div>
+        </div>
+      </div>
+      <div class="inq-form" id="inq-form-wrap">
+        <div class="inq-form-title">Send Us an <em>Inquiry</em></div>
+        <div id="inq-form-body">
+          <div class="inq-row">
+            <div class="inq-group"><label class="inq-label">First Name</label><input class="inq-input" id="inq-first" type="text" placeholder="John"/></div>
+            <div class="inq-group"><label class="inq-label">Last Name</label><input class="inq-input" id="inq-last" type="text" placeholder="Doe"/></div>
+          </div>
+          <div class="inq-group"><label class="inq-label">Email Address</label><input class="inq-input" id="inq-email" type="email" placeholder="you@example.com"/></div>
+          <div class="inq-group"><label class="inq-label">Phone (Optional)</label><input class="inq-input" id="inq-phone" type="tel" placeholder="+1 000 000 0000"/></div>
+          <div class="inq-group"><label class="inq-label">Investment Interest</label>
+            <select class="inq-select" id="inq-plan">
+              <option value="">Select a plan</option>
+              <option value="Silver">Silver - $500 minimum</option>
+              <option value="Gold">Gold - $5,000 minimum</option>
+              <option value="Obsidian">Obsidian - $50,000 minimum</option>
+              <option value="General">General Inquiry</option>
+            </select>
+          </div>
+          <div class="inq-group"><label class="inq-label">Investment Amount Range</label>
+            <select class="inq-select" id="inq-amount">
+              <option value="">Select range</option>
+              <option value="Under $1,000">Under $1,000</option>
+              <option value="$1,000 - $5,000">$1,000 - $5,000</option>
+              <option value="$5,000 - $25,000">$5,000 - $25,000</option>
+              <option value="$25,000 - $100,000">$25,000 - $100,000</option>
+              <option value="Over $100,000">Over $100,000</option>
+            </select>
+          </div>
+          <div class="inq-group"><label class="inq-label">Your Message</label><textarea class="inq-textarea" id="inq-msg" placeholder="Tell us about your investment goals, questions, or anything else..."></textarea></div>
+          <div id="inq-err" style="color:var(--rd);font-size:11px;margin-bottom:12px;display:none;padding:9px;background:rgba(224,85,85,.08);border:1px solid rgba(224,85,85,.2);"></div>
+          <button class="inq-submit" onclick="submitInquiry()">Send Inquiry</button>
+          <div style="text-align:center;margin-top:12px;font-size:9px;color:var(--mu);letter-spacing:.1em;">By submitting you agree to our Privacy Policy. No spam, ever.</div>
+        </div>
+        <div class="inq-success" id="inq-success">
+          <div class="inq-success-icon">&#x2705;</div>
+          <div class="inq-success-title">Inquiry Received!</div>
+          <div class="inq-success-msg">Thank you for reaching out. Our team will review your inquiry and get back to you at <strong id="inq-success-email" style="color:var(--gold);"></strong> within 24 hours.</div>
+          <div style="margin-top:20px;"><button class="inq-submit" style="width:auto;padding:11px 28px;" onclick="resetInquiry()">Send Another</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="flogo">QUANTUM X</div>
+    <div class="flinks"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Risk Disclosure</a><a href="#">Support</a></div>
+    <div class="fcopy">© 2026 Quantum X Capital. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- ═══════════════ SIGN IN ═══════════════ -->
+<div id="page-signin" class="page">
+  <div class="auth-wrap"><div class="auth-bg"></div><div class="auth-grid"></div>
+    <div class="auth-card">
+      <div class="alogo">QUANTUM <span>X</span></div>
+      <div class="asub">Sign in to your account</div>
+      <div class="aerr" id="si-err"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="si-email" type="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doSignIn()"/></div>
+      <div class="fg"><label class="fl">Password</label><input class="fi" id="si-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doSignIn()"/></div>
+      <button class="abtn" onclick="doSignIn()">Sign In</button>
+      <div class="adiv">demo accounts</div>
+      <div class="dbox">
+        <strong>Admin:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bbdadfd6d2d5fbcacedad5cfced6c395d8d4d6">[email&#160;protected]</a> / admin123<br>
+        <strong>Agent:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="147573717a60546561757a6061796c3a777b79">[email&#160;protected]</a> / agent123<br>
+        <strong>Support:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2754525757485553675652464953524a5f0944484a">[email&#160;protected]</a> / support123<br>
+        <strong>User:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4329222e2630033236222d37362e3b6d202c2e">[email&#160;protected]</a> / user123
+      </div>
+      <div class="asw">No account? <a onclick="goto('signup')">Create one →</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SIGN UP ═══════════════ -->
+<div id="page-signup" class="page">
+  <div class="auth-wrap"><div class="auth-bg"></div><div class="auth-grid"></div>
+    <div class="auth-card">
+      <div class="alogo">QUANTUM <span>X</span></div>
+      <div class="asub">Create your account</div>
+      <div class="aerr" id="su-err"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">First Name</label><input class="fi" id="su-first" type="text" placeholder="John"/></div>
+        <div class="fg"><label class="fl">Last Name</label><input class="fi" id="su-last" type="text" placeholder="Doe"/></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="su-email" type="email" placeholder="you@example.com"/></div>
+      <div class="fg"><label class="fl">Password</label><input class="fi" id="su-pass" type="password" placeholder="Min. 6 characters"/></div>
+      <div class="fg"><label class="fl">Investment Plan</label>
+        <select class="fsel" id="su-plan"><option value="Silver">Silver — $500 min.</option><option value="Gold" selected>Gold — $5,000 min.</option><option value="Obsidian">Obsidian — $50,000 min.</option></select>
+      </div>
+      <button class="abtn" onclick="doSignUp()">Create Account</button>
+      <div class="asw">Have an account? <a onclick="goto('signin')">Sign in →</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ USER DASHBOARD ═══════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="dash">
+    <div class="dh">
+      <div><div class="dgreet">Welcome Back</div><div class="dname" id="d-name">—</div></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span class="role-badge user" id="u-role-badge">user</span>
+        <div class="ddate" id="d-date"></div>
+      </div>
+    </div>
+    <!-- Profit Stats -->
+    <div class="pstats" id="u-pstats" style="grid-template-columns:repeat(3,1fr);margin-bottom:2px;">
+      <div class="ps"><div class="psl">Portfolio Balance</div><div class="psv gold" id="u-balance">—</div></div>
+      <div class="ps"><div class="psl">Total Profit</div><div class="psv green" id="u-profit">—</div></div>
+      <div class="ps"><div class="psl">Return on Investment</div><div class="psv" id="u-roi">—</div></div>
+    </div>
+    <div class="krow" style="grid-template-columns:repeat(4,1fr);margin-bottom:2px;">
+      <div class="kc"><div class="kl">Total Deposited</div><div class="kv gold" id="u-dep">—</div><div class="kd up">Confirmed deposits</div></div>
+      <div class="kc"><div class="kl">Withdrawn</div><div class="kv" id="u-with">—</div><div class="kd dn">Total payouts</div></div>
+      <div class="kc"><div class="kl">Active Plan</div><div class="kv" id="u-plan-v">—</div><div class="kd" style="color:var(--mu)" id="u-plan-sub">—</div></div>
+      <div class="kc"><div class="kl">Next Payout Est.</div><div class="kv green" id="u-next-pay">—</div><div class="kd up">~3% monthly</div></div>
+    </div>
+    <!-- Chart + Allocation -->
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:2px;background:var(--b);">
+      <div class="panel">
+        <div class="ptitle">Performance <span id="cp">3M</span></div>
+        <div class="ctabs"><button class="ctab active" onclick="setCT(this,'1W')">1W</button><button class="ctab" onclick="setCT(this,'1M')">1M</button><button class="ctab" onclick="setCT(this,'3M')">3M</button><button class="ctab" onclick="setCT(this,'1Y')">1Y</button></div>
+        <div class="chart-area"><svg class="chart-svg" viewBox="0 0 600 200" preserveAspectRatio="none"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C9A84C" stop-opacity=".3"/><stop offset="100%" stop-color="#C9A84C" stop-opacity="0"/></linearGradient></defs><path id="c-fill" fill="url(#cg)"/><path id="c-line" fill="none" stroke="#C9A84C" stroke-width="2"/></svg></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">Allocation</div>
+        <svg viewBox="0 0 120 120" style="width:100px;height:100px;display:block;margin:0 auto;transform:rotate(-90deg)">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#1C2333" stroke-width="16"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#C9A84C" stroke-width="16" stroke-dasharray="157 157" stroke-dashoffset="0"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#2ECC8A" stroke-width="16" stroke-dasharray="63 251" stroke-dashoffset="-157"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#5B8DEF" stroke-width="16" stroke-dasharray="44 270" stroke-dashoffset="-220"/>
+          <text x="60" y="57" text-anchor="middle" fill="#E8E4DC" font-size="11" font-family="Cormorant Garamond" transform="rotate(90 60 60)" id="ring-v">$0</text>
+          <text x="60" y="68" text-anchor="middle" fill="#7A8099" font-size="6" font-family="Montserrat" letter-spacing="2" transform="rotate(90 60 60)">BALANCE</text>
+        </svg>
+        <div style="margin-top:16px;">
+          <div class="mfield"><span class="mfl" style="display:flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:50%;background:#C9A84C;display:inline-block;"></span>Bitcoin</span><span style="font-size:12px;">50%</span></div>
+          <div class="mfield"><span class="mfl" style="display:flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:50%;background:#2ECC8A;display:inline-block;"></span>Ethereum</span><span style="font-size:12px;">20%</span></div>
+          <div class="mfield"><span class="mfl" style="display:flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:50%;background:#5B8DEF;display:inline-block;"></span>Solana</span><span style="font-size:12px;">14%</span></div>
+          <div class="mfield"><span class="mfl" style="display:flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:50%;background:#9B59B6;display:inline-block;"></span>Other</span><span style="font-size:12px;">16%</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Wallets + Transactions -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--b);margin-top:2px;">
+      <div class="panel"><div class="ptitle">Deposit Wallets <span>Send crypto here</span></div><div id="u-wallets"></div></div>
+      <div class="panel"><div class="ptitle">Transactions <span id="u-tx-c">0</span></div><div id="u-tx-list"></div></div>
+    </div>
+    <!-- Market + Profit Breakdown -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--b);margin-top:2px;">
+      <div class="panel"><div class="ptitle">Live Market</div><div class="mrow" style="color:var(--mu);font-size:8px;letter-spacing:.18em;"><div>Asset</div><div>Price</div><div>24h</div><div>Trend</div></div><div id="live-market"></div></div>
+      <div class="panel"><div class="ptitle">Profit Breakdown</div><div id="profit-bd"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ADMIN PANEL ═══════════════ -->
+<div id="page-admin" class="page">
+  <div class="adm-wrap">
+    <div class="adm-hdr">
+      <div><div class="adm-tl">Control Center</div><div class="adm-title">Admin <em>Panel</em></div></div>
+      <div class="ddate" id="adm-date"></div>
+    </div>
+    <div class="akpis" id="adm-kpis" style="grid-template-columns:repeat(6,1fr);margin-bottom:2px;"></div>
+    <div class="atabs">
+      <button class="atab active" onclick="aTab(this,'customers')">Customers</button>
+      <button class="atab" onclick="aTab(this,'transactions')">Transactions</button>
+      <button class="atab" onclick="aTab(this,'wallets')">Wallets</button>
+      <button class="atab" onclick="aTab(this,'agents')">Agents & Roles</button>
+      <button class="atab" onclick="aTab(this,'tickets')">Support Tickets</button>
+      <button class="atab" onclick="aTab(this,'pending')">Pending</button>
+      <button class="atab" onclick="aTab(this,'suspended')">Suspended</button>
+      <button class="atab" onclick="aTab(this,'inquiries')">&#x1F4E8; Inquiries <span id='inq-notif' style='display:none;background:var(--or);color:var(--obs);border-radius:50%;width:16px;height:16px;font-size:8px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-left:5px;'></span></button>
+    </div>
+    <div class="atab-c active" id="tab-customers">
+      <div class="cpw"><div class="ttb"><input class="si2" id="cust-search" type="text" placeholder="Search name, email, plan…" oninput="renderCust()"/><div style="display:flex;gap:7px;"><button class="tbtn g" onclick="exportCSV()">↓ CSV</button></div></div>
+      <div style="overflow-x:auto;"><table class="dt"><thead><tr><th>Customer</th><th>Role</th><th>Plan</th><th>Balance</th><th>Profit</th><th>Status</th><th>Actions</th></tr></thead><tbody id="cust-tbody"></tbody></table></div></div>
+    </div>
+    <div class="atab-c" id="tab-transactions">
+      <div class="cpw"><div class="ttb"><input class="si2" id="tx-search" type="text" placeholder="Search user or type…" oninput="renderAllTx()"/><button class="tbtn gold" onclick="openTxModal(null)">+ Add Transaction</button></div>
+      <div style="overflow-x:auto;"><table class="dt"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Note</th><th>Wallet</th><th>Date</th><th></th></tr></thead><tbody id="all-tx-tbody"></tbody></table></div></div>
+    </div>
+    <div class="atab-c" id="tab-wallets">
+      <div class="panel" style="background:var(--s1);"><div class="ptitle">Platform Wallets — <span>Edit deposit addresses</span></div>
+      <div class="wac" id="wac-cards" style="grid-template-columns:repeat(3,1fr);"></div></div>
+    </div>
+    <div class="atab-c" id="tab-agents">
+      <div class="cpw"><div class="ttb"><span style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);">Manage roles — assign Agent or Support to users</span></div>
+      <div style="overflow-x:auto;"><table class="dt"><thead><tr><th>User</th><th>Current Role</th><th>Assigned Customers</th><th>Actions</th></tr></thead><tbody id="agents-tbody"></tbody></table></div></div>
+    </div>
+    <div class="atab-c" id="tab-tickets"><div class="panel" style="background:var(--s1);"><div class="ptitle">Support Tickets <span id="ticket-count">0 open</span></div><div id="tickets-list"></div></div></div>
+    <div class="atab-c" id="tab-pending">
+      <div class="cpw"><div class="ttb"><span style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);">Awaiting approval</span></div>
+      <div style="overflow-x:auto;"><table class="dt"><thead><tr><th>Customer</th><th>Plan</th><th>Date</th><th>Actions</th></tr></thead><tbody id="pend-tbody"></tbody></table></div></div>
+    </div>
+    <div class="atab-c" id="tab-suspended">
+      <div class="cpw"><div class="ttb"><span style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);">Suspended accounts</span></div>
+      <div style="overflow-x:auto;"><table class="dt"><thead><tr><th>Customer</th><th>Plan</th><th>Reason</th><th>Actions</th></tr></thead><tbody id="susp-tbody"></tbody></table></div></div>
+    </div>
+    <div class="atab-c" id="tab-inquiries">
+      <div class="cpw">
+        <div class="ttb">
+          <span style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);">Website inquiry submissions</span>
+          <div style="display:flex;gap:7px;">
+            <button class="tbtn g" onclick="exportInquiries()">&#x2193; Export CSV</button>
+            <button class="tbtn gold" onclick="markAllInqRead()">Mark All Read</button>
+          </div>
+        </div>
+        <div id="inq-admin-list" style="padding:16px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ AGENT PANEL ═══════════════ -->
+<div id="page-agent" class="page">
+  <div class="adm-wrap">
+    <div class="adm-hdr"><div><div class="adm-tl">Agent Portal</div><div class="adm-title">My <em>Customers</em></div></div><div class="ddate" id="agent-date"></div></div>
+    <div class="akpis" id="agent-kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:2px;"></div>
+    <div class="atabs"><button class="atab active" onclick="aTab(this,'ag-customers')">My Customers</button><button class="atab" onclick="aTab(this,'ag-transactions')">Transactions</button><button class="atab" onclick="aTab(this,'ag-tickets')">Support Tickets</button></div>
+    <div class="atab-c active" id="tab-ag-customers">
+      <div class="cpw"><div class="ttb"><input class="si2" id="ag-search" type="text" placeholder="Search customers…" oninput="renderAgentCust()"/><button class="tbtn gold" onclick="openTxModal(null)">+ Add Transaction</button></div>
+      <div style="overflow-x:auto;"><table class="dt"><thead><tr><th>Customer</th><th>Plan</th><th>Balance</th><th>Profit</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ag-cust-tbody"></tbody></table></div></div>
+    </div>
+    <div class="atab-c" id="tab-ag-transactions">
+      <div class="cpw"><div class="ttb"><span style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);">Recent transactions for my customers</span></div>
+      <div style="overflow-x:auto;"><table class="dt"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Note</th><th>Date</th></tr></thead><tbody id="ag-tx-tbody"></tbody></table></div></div>
+    </div>
+    <div class="atab-c" id="tab-ag-tickets"><div class="panel" style="background:var(--s1);"><div class="ptitle">Customer Tickets</div><div id="ag-tickets-list"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════ SUPPORT PANEL ═══════════════ -->
+<div id="page-support" class="page">
+  <div class="adm-wrap">
+    <div class="adm-hdr"><div><div class="adm-tl">Customer Service</div><div class="adm-title">Support <em>Center</em></div></div><div class="ddate" id="sup-date"></div></div>
+    <div class="akpis" id="sup-kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:2px;"></div>
+    <div class="atabs"><button class="atab active" onclick="aTab(this,'sup-open')">Open Tickets</button><button class="atab" onclick="aTab(this,'sup-all')">All Tickets</button><button class="atab" onclick="aTab(this,'sup-resolved')">Resolved</button></div>
+    <div class="atab-c active" id="tab-sup-open"><div class="panel" style="background:var(--s1);"><div id="sup-open-list"></div></div></div>
+    <div class="atab-c" id="tab-sup-all"><div class="panel" style="background:var(--s1);"><div id="sup-all-list"></div></div></div>
+    <div class="atab-c" id="tab-sup-resolved"><div class="panel" style="background:var(--s1);"><div id="sup-res-list"></div></div></div>
+  </div>
+</div>
+
+<!-- ════ CUSTOMER DETAIL MODAL ════ -->
+<div class="mo" id="mo-cust">
+  <div class="mbox">
+    <div class="mhdr"><div class="mtitle" id="mc-name">—</div><button class="mclose" onclick="closeMo('mo-cust')">✕</button></div>
+    <div class="mbody">
+      <div class="msec"><div class="msect">Account</div>
+        <div class="mfield"><span class="mfl">Email</span><span class="mfv" id="mc-email">—</span></div>
+        <div class="mfield"><span class="mfl">Plan</span><span class="mfv" id="mc-plan">—</span></div>
+        <div class="mfield"><span class="mfl">Status</span><span id="mc-status">—</span></div>
+        <div class="mfield"><span class="mfl">Role</span><span id="mc-role">—</span></div>
+      </div>
+      <div class="msec"><div class="msect">Financials</div>
+        <div class="mfield"><span class="mfl">Balance</span><span class="mfv gold" id="mc-bal">—</span></div>
+        <div class="mfield"><span class="mfl">Deposited</span><span class="mfv" id="mc-dep">—</span></div>
+        <div class="mfield"><span class="mfl">Profit</span><span class="mfv green" id="mc-prf">—</span></div>
+        <div class="mfield"><span class="mfl">ROI</span><span class="mfv" id="mc-roi">—</span></div>
+      </div>
+      <div class="msec"><div class="msect">Change Plan</div><select class="fsel" id="mc-plan-sel" onchange="updPlan()"><option value="Silver">Silver</option><option value="Gold">Gold</option><option value="Obsidian">Obsidian</option></select></div>
+      <div class="msec"><div class="msect">Last Transactions</div><div id="mc-tx" style="max-height:160px;overflow-y:auto;"></div></div>
+    </div>
+    <div class="macts">
+      <button class="mbtn cancel" onclick="closeMo('mo-cust')">Close</button>
+      <button class="mbtn prim" onclick="openTxModal(window._cuid)">+ Transaction</button>
+      <button class="mbtn susp" id="mc-sus-btn" onclick="toggleSusp()">Suspend</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TRANSACTION MODAL ════ -->
+<div class="mo" id="mo-tx">
+  <div class="mbox" style="width:460px;">
+    <div class="mhdr"><div class="mtitle">Add Transaction</div><button class="mclose" onclick="closeMo('mo-tx')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="fl">Customer</label><select class="fsel" id="tx-uid"></select></div>
+      <div class="fg"><label class="fl">Type</label>
+        <select class="fsel" id="tx-type">
+          <option value="deposit">💰 Deposit</option>
+          <option value="withdrawal">📤 Withdrawal</option>
+          <option value="profit">📈 Profit</option>
+          <option value="adjustment">⚙️ Adjustment</option>
+          <option value="bonus">🎁 Bonus</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Amount (USD)</label><input class="fi" id="tx-amt" type="number" min="0.01" step="0.01" placeholder="500.00"/></div>
+      <div class="fg"><label class="fl">Note</label><input class="fi" id="tx-note" type="text" placeholder="e.g. BTC deposit confirmed"/></div>
+      <div class="fg"><label class="fl">Wallet</label><select class="fsel" id="tx-wallet"><option value="BTC">Bitcoin (BTC)</option><option value="ETH">Ethereum (ETH)</option><option value="USDT">USDT (TRC-20)</option></select></div>
+    </div>
+    <div class="macts"><button class="mbtn cancel" onclick="closeMo('mo-tx')">Cancel</button><button class="mbtn prim" onclick="submitTx()">Submit</button></div>
+  </div>
+</div>
+
+<!-- ════ WALLET MODAL ════ -->
+<div class="mo" id="mo-wallet">
+  <div class="mbox" style="width:440px;">
+    <div class="mhdr"><div class="mtitle" id="mw-t">Edit Wallet</div><button class="mclose" onclick="closeMo('mo-wallet')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="fl">Wallet Address</label><input class="fi" id="mw-addr" type="text" placeholder="Enter wallet address…"/></div>
+      <div class="fg"><label class="fl">Network Label</label><input class="fi" id="mw-net" type="text" placeholder="e.g. ERC-20"/></div>
+    </div>
+    <div class="macts"><button class="mbtn cancel" onclick="closeMo('mo-wallet')">Cancel</button><button class="mbtn prim" onclick="saveWallet()">Save</button></div>
+  </div>
+</div>
+
+<!-- ════ TICKET MODAL ════ -->
+<div class="mo" id="mo-ticket">
+  <div class="mbox" style="width:500px;">
+    <div class="mhdr"><div class="mtitle" id="mti-t">Ticket</div><button class="mclose" onclick="closeMo('mo-ticket')">✕</button></div>
+    <div class="mbody" id="mti-body"></div>
+    <div class="macts"><button class="mbtn cancel" onclick="closeMo('mo-ticket')">Close</button><button class="mbtn prim" onclick="resolveTicket()">✓ Mark Resolved</button></div>
+  </div>
+</div>
+
+<!-- ════ AI CHAT ════ -->
+<button class="ai-fab" id="ai-fab" onclick="toggleAI()" title="AI Assistant">🤖</button>
+<div class="ai-window" id="ai-window">
+  <div class="ai-hdr">
+    <div class="ai-hdr-l"><div class="ai-dot"></div><div><div class="ai-title">QX AI Advisor</div><div class="ai-sub">Powered by Claude · Always online</div></div></div>
+    <button class="ai-close-btn" onclick="toggleAI()">✕</button>
+  </div>
+  <div class="ai-msgs" id="ai-msgs">
+    <div class="ai-msg bot">👋 Hello! I'm your Quantum X AI Advisor. I can help with crypto market questions, investment strategies, platform guidance, and portfolio analysis. What would you like to know?</div>
+  </div>
+  <div class="ai-chips" id="ai-chips">
+    <button class="ai-chip" onclick="askChip(this)">Bitcoin outlook</button>
+    <button class="ai-chip" onclick="askChip(this)">Best plan for me?</button>
+    <button class="ai-chip" onclick="askChip(this)">How to deposit?</button>
+    <button class="ai-chip" onclick="askChip(this)">DeFi explained</button>
+  </div>
+  <div class="ai-inp-row">
+    <input class="ai-inp" id="ai-inp" placeholder="Ask anything about crypto…" onkeydown="if(event.key==='Enter')sendAI()"/>
+    <button class="ai-send" onclick="sendAI()">Send</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="tdot" id="tdot"></div><span id="tmsg"></span></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══════════════════════════════
+//   DATA
+// ══════════════════════════════
+// ══════════════════════════════════════
+//  SUPABASE CONFIG
+//  Replace YOUR_SUPABASE_URL and YOUR_SUPABASE_ANON_KEY
+//  with values from: supabase.com -> Project Settings -> API
+// ══════════════════════════════════════
+const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
+
+// Demo mode = true when Supabase not configured
+const DEMO_MODE = (SUPABASE_URL === 'YOUR_SUPABASE_URL');
+
+let sb = null;
+if (!DEMO_MODE) {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') { currentUser = null; goto('landing'); }
+  });
+}
+
+// ══════════════════════════════════════
+//  DATA (used in demo/fallback mode)
+// ══════════════════════════════════════
+const AVC=['#C9A84C','#2ECC8A','#5B8DEF','#E84142','#9B59B6','#F3BA2F','#E6007A','#1ABC9C'];
+const fmtU = n=>'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtD = ()=>new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+const niceDate = ()=>new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+// Roles: admin, agent, support, user
+let users=[
+  {id:1, first:'James',   last:'Whitmore', email:'james@quantumx.com',   pass:'user123',    role:'user',    plan:'Gold',     status:'active',   joined:'Jan 12, 2025', assignedAgent:2},
+  {id:2, first:'Alex',    last:'Morgan',   email:'agent@quantumx.com',   pass:'agent123',   role:'agent',   plan:'—',        status:'active',   joined:'Dec 1, 2024',  assignedCustomers:[1,4,6]},
+  {id:3, first:'Sara',    last:'Jenkins',  email:'support@quantumx.com', pass:'support123', role:'support', plan:'—',        status:'active',   joined:'Dec 1, 2024'},
+  {id:4, first:'Sophia',  last:'Chen',     email:'sophia@example.com',   pass:'pass123',    role:'user',    plan:'Obsidian', status:'active',   joined:'Feb 3, 2025',  assignedAgent:2},
+  {id:5, first:'Marcus',  last:'Rivera',   email:'marcus@example.com',   pass:'pass123',    role:'user',    plan:'Silver',   status:'pending',  joined:'Mar 1, 2026'},
+  {id:6, first:'Aisha',   last:'Patel',    email:'aisha@example.com',    pass:'pass123',    role:'user',    plan:'Gold',     status:'active',   joined:'Nov 8, 2024',  assignedAgent:2},
+  {id:7, first:'Lena',    last:'Schmidt',  email:'lena@example.com',     pass:'pass123',    role:'user',    plan:'Silver',   status:'suspended',joined:'Aug 20, 2024', reason:'Policy violation'},
+  {id:8, first:'David',   last:'Okonkwo',  email:'david@example.com',    pass:'pass123',    role:'user',    plan:'Gold',     status:'active',   joined:'Dec 14, 2024'},
+  {id:9, first:'Carlos',  last:'Mendez',   email:'carlos@example.com',   pass:'pass123',    role:'user',    plan:'Silver',   status:'active',   joined:'Oct 2, 2024'},
+  {id:10,first:'Admin',   last:'User',     email:'admin@quantumx.com',   pass:'admin123',   role:'admin',   plan:'—',        status:'active',   joined:'Jan 1, 2024'},
+];
+
+let transactions=[
+  {id:1,uid:1,type:'deposit',   amount:10000,note:'Initial BTC deposit',   wallet:'BTC', date:'Jan 12, 2025'},
+  {id:2,uid:1,type:'deposit',   amount:5000, note:'ETH top-up',            wallet:'ETH', date:'Mar 1, 2025'},
+  {id:3,uid:1,type:'profit',    amount:3200, note:'Q1 2025 returns',       wallet:'BTC', date:'Apr 1, 2025'},
+  {id:4,uid:1,type:'profit',    amount:4800, note:'Q2 2025 returns',       wallet:'ETH', date:'Jul 1, 2025'},
+  {id:5,uid:1,type:'withdrawal',amount:1500, note:'Partial withdrawal',    wallet:'ETH', date:'Sep 10, 2025'},
+  {id:6,uid:1,type:'bonus',     amount:500,  note:'Referral bonus',        wallet:'BTC', date:'Oct 5, 2025'},
+  {id:7,uid:4,type:'deposit',   amount:50000,note:'Obsidian plan — USDT',  wallet:'USDT',date:'Feb 3, 2025'},
+  {id:8,uid:4,type:'profit',    amount:12000,note:'Q1 profit',             wallet:'USDT',date:'Apr 1, 2025'},
+  {id:9,uid:4,type:'profit',    amount:18000,note:'Q2 profit',             wallet:'USDT',date:'Jul 1, 2025'},
+  {id:10,uid:6,type:'deposit',  amount:8000, note:'Gold plan deposit',     wallet:'BTC', date:'Nov 8, 2024'},
+  {id:11,uid:6,type:'profit',   amount:2100, note:'Monthly profit Jan',    wallet:'BTC', date:'Feb 1, 2025'},
+  {id:12,uid:8,type:'deposit',  amount:15000,note:'Initial Gold deposit',  wallet:'ETH', date:'Dec 14, 2024'},
+  {id:13,uid:8,type:'profit',   amount:5000, note:'Q1 profit',             wallet:'ETH', date:'Apr 1, 2025'},
+  {id:14,uid:9,type:'deposit',  amount:600,  note:'Silver — BTC',          wallet:'BTC', date:'Oct 2, 2024'},
+  {id:15,uid:9,type:'profit',   amount:120,  note:'Monthly returns',       wallet:'BTC', date:'Jan 1, 2025'},
+];
+
+let wallets=[
+  {coin:'BTC', icon:'₿', color:'#F7931A', net:'Bitcoin Network',   addr:'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'},
+  {coin:'ETH', icon:'Ξ', color:'#627EEA', net:'ERC-20 (Ethereum)', addr:'0x71C7656EC7ab88b098defB751B7401B5f6d8976F'},
+  {coin:'USDT',icon:'₮', color:'#26A17B', net:'TRC-20 (TRON)',     addr:'TRx8QDmXqsXP3iXpFbJkmHwXB4RQoBuUCk'},
+];
+
+let tickets=[
+  {id:1,uid:1,subject:'Withdrawal delay',msg:'My withdrawal has not been processed in 3 days. Please help.',status:'open',date:'Mar 6, 2026',reply:''},
+  {id:2,uid:6,subject:'Account verification',msg:'I submitted my KYC documents but the account still shows unverified.',status:'open',date:'Mar 7, 2026',reply:''},
+  {id:3,uid:9,subject:'Deposit not credited',msg:'I sent 0.05 BTC 2 hours ago but my balance still shows $0.',status:'pending',date:'Mar 8, 2026',reply:''},
+  {id:4,uid:4,subject:'Plan upgrade request',msg:'I would like to upgrade from Gold to Obsidian. What is the process?',status:'resolved',date:'Mar 1, 2026',reply:'Hi Sophia, please contact your account manager to process the upgrade. We have forwarded your request.'},
+];
+
+let inquiries=[];
+
+let currentUser=null;
+window._cuid=null; window._curWi=null; window._curTi=null; window._cd='3M';
+
+// ══ COMPUTED ══
+function calcUser(uid){
+  const txs=transactions.filter(t=>t.uid===uid);
+  const dep =txs.filter(t=>t.type==='deposit').reduce((s,t)=>s+t.amount,0);
+  const wit =txs.filter(t=>t.type==='withdrawal').reduce((s,t)=>s+t.amount,0);
+  const prf =txs.filter(t=>t.type==='profit'||t.type==='bonus').reduce((s,t)=>s+t.amount,0);
+  const adj =txs.filter(t=>t.type==='adjustment').reduce((s,t)=>s+t.amount,0);
+  const bal =dep-wit+prf+adj;
+  const roi =dep>0?((prf/dep)*100).toFixed(1)+'%':'0%';
+  return{dep,wit,prf,adj,bal,roi,payout:(bal*.03).toFixed(2),txs};
+}
+
+// ══ AUTH ══
+async function doSignIn(){
+  const email=document.getElementById('si-email').value.trim().toLowerCase();
+  const pass=document.getElementById('si-pass').value;
+  const err=document.getElementById('si-err');
+
+  if(DEMO_MODE){
+    // Demo mode — use in-memory users
+    const u=users.find(x=>x.email.toLowerCase()===email&&x.pass===pass);
+    if(!u){setErr(err,'Invalid email or password.');return;}
+    if(u.status==='suspended'){setErr(err,'Account suspended. Contact support.');return;}
+    if(u.status==='pending'){setErr(err,'Account pending admin approval.');return;}
+    err.style.display='none'; currentUser=u;
+    if(u.role==='admin') initAdmin();
+    else if(u.role==='agent') initAgent();
+    else if(u.role==='support') initSupport();
+    else initDash();
+    return;
+  }
+
+  // Real Supabase auth
+  const btn=document.querySelector('#page-signin .abtn');
+  if(btn){btn.textContent='Signing in…';btn.disabled=true;}
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+    if(error){setErr(err,error.message);return;}
+    // Load profile
+    const {data:profile,error:pe}=await sb.from('profiles').select('*').eq('id',data.user.id).single();
+    if(pe||!profile){setErr(err,'Profile not found. Contact support.');return;}
+    if(profile.status==='suspended'){await sb.auth.signOut();setErr(err,'Account suspended. Contact support.');return;}
+    if(profile.status==='pending'){await sb.auth.signOut();setErr(err,'Account pending admin approval.');return;}
+    currentUser={...profile, email:data.user.email, first:profile.first_name, last:profile.last_name};
+    err.style.display='none';
+    if(currentUser.role==='admin') initAdmin();
+    else if(currentUser.role==='agent') initAgent();
+    else if(currentUser.role==='support') initSupport();
+    else initDash();
+  }catch(e){setErr(err,'Login failed. Please try again.');}
+  finally{if(btn){btn.textContent='Sign In';btn.disabled=false;}}
+}
+
+async function doSignUp(){
+  const first=document.getElementById('su-first').value.trim(),last=document.getElementById('su-last').value.trim();
+  const email=document.getElementById('su-email').value.trim().toLowerCase();
+  const pass=document.getElementById('su-pass').value,plan=document.getElementById('su-plan').value;
+  const err=document.getElementById('su-err');
+  if(!first||!last||!email||!pass){setErr(err,'Fill in all fields.');return;}
+  if(pass.length<6){setErr(err,'Password min. 6 characters.');return;}
+
+  if(DEMO_MODE){
+    if(users.find(x=>x.email.toLowerCase()===email)){setErr(err,'Email already registered.');return;}
+    err.style.display='none';
+    users.push({id:users.length+1,first,last,email,pass,role:'user',plan,status:'pending',joined:niceDate()});
+    toast('Account created! Awaiting admin approval.','#C9A84C');
+    goto('signin');
+    return;
+  }
+
+  const btn=document.querySelector('#page-signup .abtn');
+  if(btn){btn.textContent='Creating account…';btn.disabled=true;}
+  try{
+    const {data,error}=await sb.auth.signUp({
+      email, password:pass,
+      options:{data:{first_name:first,last_name:last,plan}}
+    });
+    if(error){setErr(err,error.message);return;}
+    err.style.display='none';
+    toast('Account created! Check your email to verify, then await admin approval.','#C9A84C');
+    goto('signin');
+  }catch(e){setErr(err,'Sign up failed. Please try again.');}
+  finally{if(btn){btn.textContent='Create Account';btn.disabled=false;}}
+}
+
+async function signOut(){
+  if(!DEMO_MODE&&sb) await sb.auth.signOut();
+  currentUser=null; goto('landing'); toast('Signed out.','#C9A84C');
+}
+function setErr(el,msg){el.textContent=msg;el.style.display='block';}
+
+// ══ NAVIGATION ══
+function goto(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  ['si-err','su-err'].forEach(i=>{const el=document.getElementById(i);if(el)el.style.display='none';});
+  updateNav();
+  if(id==='landing') buildFloatCoins();
+}
+// signOut defined above
+function updateNav(){
+  const nr=document.getElementById('nav-r');
+  if(!currentUser){
+    nr.innerHTML=`<button class="nb" onclick="goto('signin')">Sign In</button><button class="nb solid" onclick="goto('signup')">Get Started</button>`;
+  } else {
+    const roleColors={admin:getComputedStyle(document.documentElement).getPropertyValue('--bl').trim(),agent:getComputedStyle(document.documentElement).getPropertyValue('--or').trim(),support:getComputedStyle(document.documentElement).getPropertyValue('--pu').trim(),user:getComputedStyle(document.documentElement).getPropertyValue('--gold').trim()};
+    const av=currentUser.first[0].toUpperCase();
+    const color=roleColors[currentUser.role]||'#C9A84C';
+    nr.innerHTML=`<span class="role-badge ${currentUser.role}">${currentUser.role}</span><div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mu);"><div class="nav-av" style="background:${color};color:#000;">${av}</div>${currentUser.first}</div><button class="nb" onclick="signOut()">Sign Out</button>`;
+  }
+}
+
+// ══ USER DASHBOARD ══
+function initDash(){
+  goto('dashboard');
+  const u=currentUser, fin=calcUser(u.id);
+  document.getElementById('d-name').innerHTML=`${u.first} <em>${u.last}</em>`;
+  document.getElementById('d-date').textContent=fmtD();
+  document.getElementById('u-role-badge').textContent=u.role;
+  document.getElementById('u-balance').textContent=fmtU(fin.bal);
+  document.getElementById('u-profit').textContent='+'+fmtU(fin.prf);
+  document.getElementById('u-roi').textContent='+'+fin.roi;
+  document.getElementById('ring-v').textContent='$'+Math.round(fin.bal/1000)+'K';
+  document.getElementById('u-dep').textContent=fmtU(fin.dep);
+  document.getElementById('u-with').textContent=fmtU(fin.wit);
+  document.getElementById('u-plan-v').textContent=u.plan;
+  document.getElementById('u-plan-sub').textContent=u.plan+' plan';
+  document.getElementById('u-next-pay').textContent='+'+fmtU(+fin.payout);
+  renderUserWallets(); renderUserTx(u.id); renderProfitBd(u.id); drawChart(); renderMarket();
+}
+function renderUserWallets(){
+  document.getElementById('u-wallets').innerHTML=wallets.map(w=>`
+    <div class="wcard"><div class="wcoin"><div class="wcic" style="color:${w.color};border-color:${w.color}44;">${w.icon}</div><div><div class="wcn">${w.coin}</div><div class="wcnet">${w.net}</div></div><button class="cpybtn" onclick="copyTxt('${w.addr}')">Copy</button></div>
+    <div class="waddr">${w.addr}</div>
+    <div style="font-size:9px;color:var(--mu);">Send only <strong style="color:var(--gold);">${w.coin}</strong> to this address.</div></div>`).join('');
+}
+function renderUserTx(uid){
+  const txs=transactions.filter(t=>t.uid===uid).slice().reverse();
+  document.getElementById('u-tx-c').textContent=txs.length;
+  const el=document.getElementById('u-tx-list'); if(!el)return;
+  el.innerHTML=txs.slice(0,8).map(t=>{
+    const cr=t.type==='deposit'||t.type==='profit'||t.type==='bonus';
+    const icons={deposit:'₿',withdrawal:'📤',profit:'📈',adjustment:'⚙',bonus:'🎁'};
+    return`<div class="txrow"><div class="txl"><div class="txic">${icons[t.type]||'$'}</div><div class="txi"><div><span class="tx-badge ${t.type}">${t.type}</span></div><div class="txid">${t.note} · ${t.date}</div></div></div><div class="txa ${cr?'cr':'db'}">${cr?'+':'-'}${fmtU(t.amount)}</div></div>`;
+  }).join('');
+}
+function renderProfitBd(uid){
+  const txs=transactions.filter(t=>t.uid===uid);
+  const el=document.getElementById('profit-bd'); if(!el)return;
+  const types=[['deposit','Deposits','#C9A84C'],[' profit','Profit','#2ECC8A'],['bonus','Bonuses','#9B59B6'],['withdrawal','Withdrawals','#E05555'],['adjustment','Adjustments','#5B8DEF']];
+  el.innerHTML=types.map(([type,label,color])=>{
+    const sum=txs.filter(x=>x.type===type.trim()).reduce((s,x)=>s+x.amount,0);
+    if(!sum)return'';
+    const neg=type.trim()==='withdrawal';
+    return`<div class="mfield"><span class="mfl">${label}</span><span class="mfv" style="color:${color};">${neg?'-':'+'}${fmtU(sum)}</span></div>`;
+  }).filter(Boolean).join('');
+}
+
+// ══ ADMIN ══
+function initAdmin(){
+  goto('admin');
+  document.getElementById('adm-date').textContent=fmtD();
+  refreshAdmin();
+}
+function refreshAdmin(){updateAdmKpis();renderCust();renderAllTx();renderWalletAdmin();renderAgents();renderTickets('admin');renderPend();renderSusp();renderInqAdmin();}
+
+function updateAdmKpis(){
+  const real=users.filter(u=>u.role==='user');
+  const aum=real.reduce((s,u)=>s+calcUser(u.id).dep,0);
+  const agents=users.filter(u=>u.role==='agent').length;
+  const supp=users.filter(u=>u.role==='support').length;
+  document.getElementById('adm-kpis').innerHTML=`
+    <div class="ak"><div class="akl">Total Users</div><div class="akv gold">${real.length}</div><div class="aksub">Registered</div></div>
+    <div class="ak"><div class="akl">Active</div><div class="akv green">${real.filter(u=>u.status==='active').length}</div><div class="aksub">Currently active</div></div>
+    <div class="ak"><div class="akl">Pending</div><div class="akv">${real.filter(u=>u.status==='pending').length}</div><div class="aksub">Need approval</div></div>
+    <div class="ak"><div class="akl">Agents</div><div class="akv orange">${agents}</div><div class="aksub">Active agents</div></div>
+    <div class="ak"><div class="akl">Support Staff</div><div class="akv blue">${supp}</div><div class="aksub">CS team</div></div>
+    <div class="ak"><div class="akl">Platform AUM</div><div class="akv gold">$${Math.round(aum).toLocaleString()}</div><div class="aksub">Total deposits</div></div>`;
+}
+
+function initials(u){return((u.first||'')[0]+(u.last||'')[0]).toUpperCase();}
+function avColor(id){return AVC[id%AVC.length];}
+
+function renderCust(){
+  const q=(document.getElementById('cust-search')||{value:''}).value.toLowerCase();
+  const rows=users.filter(u=>u.role!=='admin'&&(`${u.first} ${u.last}`.toLowerCase().includes(q)||u.email.toLowerCase().includes(q)||(u.plan||'').toLowerCase().includes(q)));
+  const tbody=document.getElementById('cust-tbody'); if(!tbody)return;
+  tbody.innerHTML=rows.map(u=>{
+    const fin=u.role==='user'?calcUser(u.id):null;
+    return`<tr>
+      <td><div class="ucel"><div class="uav" style="background:${avColor(u.id)}">${initials(u)}</div><div><div class="uname">${u.first} ${u.last}</div><div class="uemail">${u.email}</div></div></div></td>
+      <td><span class="role-badge ${u.role}">${u.role}</span></td>
+      <td><span class="ptag ${(u.plan||'').toLowerCase()}">${u.plan}</span></td>
+      <td style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold);">${fin?fmtU(fin.bal):'—'}</td>
+      <td style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gr);">${fin?'+'+fmtU(fin.prf):'—'}</td>
+      <td><span class="sbadge ${u.status}">${u.status}</span></td>
+      <td><div class="abtns">
+        ${u.role==='user'?`<button class="ibtn" onclick="openCustMo(${u.id})">👁 View</button><button class="ibtn" onclick="openTxModal(${u.id})">+ Tx</button>`:'' }
+        ${u.status==='pending'?`<button class="ibtn s" onclick="approveUser(${u.id})">✓ Approve</button>`:''}
+        ${u.status==='suspended'?`<button class="ibtn s" onclick="quickActivate(${u.id})">↺ Activate</button>`:(u.role==='user'?`<button class="ibtn d" onclick="quickSuspend(${u.id})">⊘ Suspend</button>`:'')}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAllTx(){
+  const q=(document.getElementById('tx-search')||{value:''}).value.toLowerCase();
+  const tbody=document.getElementById('all-tx-tbody'); if(!tbody)return;
+  const all=[...transactions].reverse().filter(t=>{
+    const u=users.find(x=>x.id===t.uid);
+    return u&&(`${u.first} ${u.last}`.toLowerCase().includes(q)||t.type.includes(q)||t.note.toLowerCase().includes(q));
+  });
+  if(!all.length){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:28px;font-size:11px;">No transactions found.</td></tr>`;return;}
+  tbody.innerHTML=all.map(t=>{
+    const u=users.find(x=>x.id===t.uid);
+    const cr=t.type==='deposit'||t.type==='profit'||t.type==='bonus';
+    return`<tr>
+      <td><div class="ucel"><div class="uav" style="background:${avColor(t.uid)}">${u?initials(u):'?'}</div><div><div class="uname">${u?`${u.first} ${u.last}`:'Unknown'}</div></div></div></td>
+      <td><span class="tx-badge ${t.type}">${t.type}</span></td>
+      <td style="font-family:'Cormorant Garamond',serif;font-size:14px;color:${cr?'var(--gr)':'var(--rd)'};">${cr?'+':'-'}${fmtU(t.amount)}</td>
+      <td style="color:var(--mu);font-size:10px;max-width:160px;">${t.note}</td>
+      <td style="color:var(--mu);font-size:10px;">${t.wallet}</td>
+      <td style="color:var(--mu);font-size:10px;">${t.date}</td>
+      <td><button class="ibtn d" onclick="deleteTx(${t.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderWalletAdmin(){
+  const el=document.getElementById('wac-cards'); if(!el)return;
+  el.innerHTML=wallets.map((w,i)=>{
+    const total=transactions.filter(t=>t.wallet===w.coin&&t.type==='deposit').reduce((s,t)=>s+t.amount,0);
+    return`<div class="wacc"><div class="wacc-top"><div class="wacc-coin"><div class="wacc-ic" style="color:${w.color};border-color:${w.color}44;">${w.icon}</div><div><div class="wacc-name">${w.coin}</div><div class="wacc-net">${w.net}</div></div></div><button class="wacc-edit" onclick="openWalletMo(${i})">✎ Edit</button></div>
+    <div class="wacc-addr">${w.addr}</div>
+    <div class="wacc-dep">${fmtU(total)}</div><div style="font-size:9px;color:var(--mu);letter-spacing:.1em;margin-top:3px;">Total received</div></div>`;
+  }).join('');
+}
+
+function renderAgents(){
+  const tbody=document.getElementById('agents-tbody'); if(!tbody)return;
+  const staff=users.filter(u=>u.role!=='admin');
+  tbody.innerHTML=staff.map(u=>{
+    const assigned=u.assignedCustomers?u.assignedCustomers.length:0;
+    return`<tr>
+      <td><div class="ucel"><div class="uav" style="background:${avColor(u.id)}">${initials(u)}</div><div><div class="uname">${u.first} ${u.last}</div><div class="uemail">${u.email}</div></div></div></td>
+      <td><span class="role-badge ${u.role}">${u.role}</span></td>
+      <td style="color:var(--mu);font-size:11px;">${u.role==='agent'?assigned+' customer(s)':'—'}</td>
+      <td><div class="abtns">
+        ${u.role!=='admin'?`
+          <button class="ibtn s" onclick="setRole(${u.id},'agent')">→ Agent</button>
+          <button class="ibtn" onclick="setRole(${u.id},'support')">→ Support</button>
+          ${u.role!=='user'?`<button class="ibtn d" onclick="setRole(${u.id},'user')">→ User</button>`:''}
+        `:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function setRole(id, role){
+  const u=users.find(x=>x.id===id); if(!u||u.role==='admin')return;
+  u.role=role;
+  if(role==='agent'&&!u.assignedCustomers)u.assignedCustomers=[];
+  toast(`${u.first} is now ${role}.`,role==='agent'?'#E8873A':role==='support'?'#9B59B6':'#C9A84C');
+  refreshAdmin();
+}
+
+function renderTickets(ctx){
+  const open=tickets.filter(t=>t.status!=='resolved');
+  const countEl=document.getElementById('ticket-count');
+  if(countEl)countEl.textContent=open.length+' open';
+  renderTicketList('tickets-list', tickets, ctx);
+}
+function renderTicketList(elId, list, ctx){
+  const el=document.getElementById(elId); if(!el)return;
+  if(!list.length){el.innerHTML=`<div style="color:var(--mu);font-size:11px;padding:20px;text-align:center;letter-spacing:.1em;">No tickets.</div>`;return;}
+  el.innerHTML=list.map(t=>{
+    const u=users.find(x=>x.id===t.uid);
+    return`<div class="ticket-card ${t.status==='open'?'unread':''}" onclick="openTicketMo(${t.id})">
+      <div class="ticket-hdr"><span class="ticket-user">${u?`${u.first} ${u.last}`:'Unknown'}</span><div style="display:flex;align-items:center;gap:8px;"><span class="ticket-status ${t.status}">${t.status}</span><span class="ticket-time">${t.date}</span></div></div>
+      <div class="ticket-subject">${t.subject}</div>
+      <div class="ticket-preview">${t.msg}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPend(){
+  const rows=users.filter(u=>u.role==='user'&&u.status==='pending');
+  const tbody=document.getElementById('pend-tbody'); if(!tbody)return;
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--mu);padding:28px;font-size:11px;">No pending approvals.</td></tr>`;return;}
+  tbody.innerHTML=rows.map(u=>`<tr><td><div class="ucel"><div class="uav" style="background:${avColor(u.id)}">${initials(u)}</div><div><div class="uname">${u.first} ${u.last}</div><div class="uemail">${u.email}</div></div></div></td><td><span class="ptag ${u.plan.toLowerCase()}">${u.plan}</span></td><td style="color:var(--mu);font-size:10px;">${u.joined}</td><td><div class="abtns"><button class="ibtn s" onclick="approveUser(${u.id})">✓ Approve</button><button class="ibtn d" onclick="quickSuspend(${u.id})">✕ Reject</button></div></td></tr>`).join('');
+}
+function renderSusp(){
+  const rows=users.filter(u=>u.role==='user'&&u.status==='suspended');
+  const tbody=document.getElementById('susp-tbody'); if(!tbody)return;
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--mu);padding:28px;font-size:11px;">No suspended accounts.</td></tr>`;return;}
+  tbody.innerHTML=rows.map(u=>`<tr><td><div class="ucel"><div class="uav" style="background:${avColor(u.id)}">${initials(u)}</div><div><div class="uname">${u.first} ${u.last}</div><div class="uemail">${u.email}</div></div></div></td><td><span class="ptag ${u.plan.toLowerCase()}">${u.plan}</span></td><td style="color:var(--mu);font-size:10px;">${u.reason||'—'}</td><td><button class="ibtn s" onclick="quickActivate(${u.id})">↺ Reactivate</button></td></tr>`).join('');
+}
+
+// ══ AGENT ══
+function initAgent(){
+  goto('agent');
+  document.getElementById('agent-date').textContent=fmtD();
+  const assigned=currentUser.assignedCustomers||[];
+  const myUsers=users.filter(u=>assigned.includes(u.id));
+  const totalBal=myUsers.reduce((s,u)=>s+calcUser(u.id).bal,0);
+  const totalPrf=myUsers.reduce((s,u)=>s+calcUser(u.id).prf,0);
+  document.getElementById('agent-kpis').innerHTML=`
+    <div class="ak"><div class="akl">My Customers</div><div class="akv orange">${myUsers.length}</div><div class="aksub">Assigned to me</div></div>
+    <div class="ak"><div class="akl">Total Balance</div><div class="akv gold">${fmtU(totalBal)}</div><div class="aksub">Combined</div></div>
+    <div class="ak"><div class="akl">Total Profit</div><div class="akv green">+${fmtU(totalPrf)}</div><div class="aksub">Generated</div></div>
+    <div class="ak"><div class="akl">Open Tickets</div><div class="akv">${tickets.filter(t=>assigned.includes(t.uid)&&t.status==='open').length}</div><div class="aksub">Needs attention</div></div>`;
+  renderAgentCust(); renderAgentTx();
+  renderTicketList('ag-tickets-list', tickets.filter(t=>assigned.includes(t.uid)), 'agent');
+}
+function renderAgentCust(){
+  const q=(document.getElementById('ag-search')||{value:''}).value.toLowerCase();
+  const assigned=currentUser.assignedCustomers||[];
+  const tbody=document.getElementById('ag-cust-tbody'); if(!tbody)return;
+  const rows=users.filter(u=>assigned.includes(u.id)&&(`${u.first} ${u.last}`.toLowerCase().includes(q)||u.email.toLowerCase().includes(q)));
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--mu);padding:28px;font-size:11px;">No assigned customers.</td></tr>`;return;}
+  tbody.innerHTML=rows.map(u=>{
+    const fin=calcUser(u.id);
+    return`<tr><td><div class="ucel"><div class="uav" style="background:${avColor(u.id)}">${initials(u)}</div><div><div class="uname">${u.first} ${u.last}</div><div class="uemail">${u.email}</div></div></div></td>
+    <td><span class="ptag ${u.plan.toLowerCase()}">${u.plan}</span></td>
+    <td style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold);">${fmtU(fin.bal)}</td>
+    <td style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gr);">+${fmtU(fin.prf)}</td>
+    <td><span class="sbadge ${u.status}">${u.status}</span></td>
+    <td><div class="abtns"><button class="ibtn" onclick="openCustMo(${u.id})">👁 View</button><button class="ibtn" onclick="openTxModal(${u.id})">+ Tx</button></div></td></tr>`;
+  }).join('');
+}
+function renderAgentTx(){
+  const assigned=currentUser.assignedCustomers||[];
+  const tbody=document.getElementById('ag-tx-tbody'); if(!tbody)return;
+  const all=transactions.filter(t=>assigned.includes(t.uid)).slice().reverse().slice(0,20);
+  if(!all.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--mu);padding:28px;font-size:11px;">No transactions.</td></tr>`;return;}
+  tbody.innerHTML=all.map(t=>{
+    const u=users.find(x=>x.id===t.uid);
+    const cr=t.type==='deposit'||t.type==='profit'||t.type==='bonus';
+    return`<tr><td><div class="uname">${u?`${u.first} ${u.last}`:'?'}</div></td><td><span class="tx-badge ${t.type}">${t.type}</span></td><td style="color:${cr?'var(--gr)':'var(--rd)'};font-family:'Cormorant Garamond',serif;font-size:14px;">${cr?'+':'-'}${fmtU(t.amount)}</td><td style="color:var(--mu);font-size:10px;">${t.note}</td><td style="color:var(--mu);font-size:10px;">${t.date}</td></tr>`;
+  }).join('');
+}
+
+// ══ SUPPORT ══
+function initSupport(){
+  goto('support');
+  document.getElementById('sup-date').textContent=fmtD();
+  const open=tickets.filter(t=>t.status==='open').length;
+  const pend=tickets.filter(t=>t.status==='pending').length;
+  const res=tickets.filter(t=>t.status==='resolved').length;
+  document.getElementById('sup-kpis').innerHTML=`
+    <div class="ak"><div class="akl">Open Tickets</div><div class="akv red">${open}</div><div class="aksub">Needs response</div></div>
+    <div class="ak"><div class="akl">Pending</div><div class="akv gold">${pend}</div><div class="aksub">Awaiting info</div></div>
+    <div class="ak"><div class="akl">Resolved</div><div class="akv green">${res}</div><div class="aksub">Closed tickets</div></div>
+    <div class="ak"><div class="akl">Total</div><div class="akv">${tickets.length}</div><div class="aksub">All tickets</div></div>`;
+  renderTicketList('sup-open-list', tickets.filter(t=>t.status!=='resolved'), 'support');
+  renderTicketList('sup-all-list', tickets, 'support');
+  renderTicketList('sup-res-list', tickets.filter(t=>t.status==='resolved'), 'support');
+}
+
+// ══ MODALS ══
+function openCustMo(uid){
+  const u=users.find(x=>x.id===uid); if(!u)return;
+  window._cuid=uid; const fin=calcUser(uid);
+  document.getElementById('mc-name').textContent=`${u.first} ${u.last}`;
+  document.getElementById('mc-email').textContent=u.email;
+  document.getElementById('mc-plan').textContent=u.plan;
+  document.getElementById('mc-status').innerHTML=`<span class="sbadge ${u.status}">${u.status}</span>`;
+  document.getElementById('mc-role').innerHTML=`<span class="role-badge ${u.role}">${u.role}</span>`;
+  document.getElementById('mc-bal').textContent=fmtU(fin.bal);
+  document.getElementById('mc-dep').textContent=fmtU(fin.dep);
+  document.getElementById('mc-prf').textContent='+'+fmtU(fin.prf);
+  document.getElementById('mc-roi').textContent='+'+fin.roi;
+  document.getElementById('mc-plan-sel').value=u.plan;
+  const btn=document.getElementById('mc-sus-btn');
+  btn.textContent=u.status==='suspended'?'Reactivate':'Suspend';
+  btn.className=u.status==='suspended'?'mbtn actv':'mbtn susp';
+  const txs=transactions.filter(t=>t.uid===uid).slice().reverse().slice(0,5);
+  document.getElementById('mc-tx').innerHTML=txs.map(t=>{
+    const cr=t.type==='deposit'||t.type==='profit'||t.type==='bonus';
+    return`<div class="mfield"><span class="mfl"><span class="tx-badge ${t.type}" style="margin-right:5px;">${t.type}</span>${t.note}</span><span class="mfv" style="color:${cr?'var(--gr)':'var(--rd)'};">${cr?'+':'-'}${fmtU(t.amount)}</span></div>`;
+  }).join('')||'<div style="color:var(--mu);font-size:11px;padding:10px 0;">No transactions.</div>';
+  openMo('mo-cust');
+}
+function toggleSusp(){
+  const u=users.find(x=>x.id===window._cuid); if(!u)return;
+  if(u.status==='suspended'){u.status='active';toast(`${u.first} reactivated.`,'#2ECC8A');}
+  else{u.status='suspended';u.reason='Admin action';toast(`${u.first} suspended.`,'#E05555');}
+  closeMo('mo-cust'); refreshAdmin();
+}
+function updPlan(){
+  const u=users.find(x=>x.id===window._cuid); if(!u)return;
+  u.plan=document.getElementById('mc-plan-sel').value;
+  toast(`Plan updated to ${u.plan}.`,'#C9A84C'); refreshAdmin();
+}
+function openTxModal(uid){
+  const opts=users.filter(u=>u.role==='user'&&u.status==='active').map(u=>`<option value="${u.id}" ${u.id===uid?'selected':''}>${u.first} ${u.last} (${u.plan})</option>`).join('');
+  document.getElementById('tx-uid').innerHTML=opts;
+  document.getElementById('tx-amt').value='';
+  document.getElementById('tx-note').value='';
+  openMo('mo-tx');
+}
+function submitTx(){
+  const uid=parseInt(document.getElementById('tx-uid').value);
+  const type=document.getElementById('tx-type').value;
+  const amount=parseFloat(document.getElementById('tx-amt').value);
+  const note=document.getElementById('tx-note').value.trim()||type;
+  const wallet=document.getElementById('tx-wallet').value;
+  if(!uid||isNaN(amount)||amount<=0){toast('Fill in all fields correctly.','#E05555');return;}
+  const u=users.find(x=>x.id===uid);
+  transactions.push({id:transactions.length+1,uid,type,amount,note,wallet,date:niceDate()});
+  const cr=type==='deposit'||type==='profit'||type==='bonus';
+  toast(`${cr?'+':'-'}${fmtU(amount)} ${type} → ${u.first} ${u.last}`,cr?'#2ECC8A':'#E05555');
+  closeMo('mo-tx');
+  if(currentUser.role==='admin')refreshAdmin();
+  else if(currentUser.role==='agent'){renderAgentCust();renderAgentTx();}
+  else initDash();
+}
+function deleteTx(id){
+  transactions.splice(transactions.findIndex(t=>t.id===id),1);
+  toast('Transaction deleted.','#E05555'); refreshAdmin();
+}
+function openWalletMo(i){
+  window._curWi=i; const w=wallets[i];
+  document.getElementById('mw-t').textContent=`Edit ${w.coin} Wallet`;
+  document.getElementById('mw-addr').value=w.addr;
+  document.getElementById('mw-net').value=w.net;
+  openMo('mo-wallet');
+}
+function saveWallet(){
+  const addr=document.getElementById('mw-addr').value.trim();
+  const net=document.getElementById('mw-net').value.trim();
+  if(!addr){toast('Enter a wallet address.','#E05555');return;}
+  wallets[window._curWi].addr=addr;
+  if(net)wallets[window._curWi].net=net;
+  toast('Wallet updated!','#2ECC8A'); closeMo('mo-wallet'); renderWalletAdmin();
+}
+function openTicketMo(id){
+  const t=tickets.find(x=>x.id===id); if(!t)return;
+  window._curTi=id;
+  const u=users.find(x=>x.id===t.uid);
+  document.getElementById('mti-t').textContent=t.subject;
+  document.getElementById('mti-body').innerHTML=`
+    <div class="msec"><div class="msect">From: ${u?`${u.first} ${u.last}`:'Unknown'} · ${t.date}</div>
+    <div style="background:var(--s2);padding:16px;border:1px solid var(--b);font-size:12px;line-height:1.7;color:var(--tx);">${t.msg}</div></div>
+    ${t.reply?`<div class="msec"><div class="msect">Reply sent</div><div style="background:rgba(201,168,76,.08);padding:14px;border:1px solid var(--bb);font-size:12px;line-height:1.7;color:var(--tx);">${t.reply}</div></div>`:''}
+    <div class="msec"><div class="msect">Reply</div><textarea class="fi" id="ticket-reply" style="height:90px;resize:vertical;" placeholder="Type your reply…">${t.reply||''}</textarea></div>`;
+  openMo('mo-ticket');
+}
+function resolveTicket(){
+  const t=tickets.find(x=>x.id===window._curTi); if(!t)return;
+  const reply=(document.getElementById('ticket-reply')||{value:''}).value.trim();
+  t.status='resolved'; t.reply=reply||t.reply;
+  toast('Ticket resolved!','#2ECC8A'); closeMo('mo-ticket');
+  if(currentUser.role==='admin')refreshAdmin();
+  else if(currentUser.role==='support')initSupport();
+}
+function quickSuspend(id){const u=users.find(x=>x.id===id);if(!u)return;u.status='suspended';u.reason='Admin action';toast(`${u.first} suspended.`,'#E05555');refreshAdmin();}
+function quickActivate(id){const u=users.find(x=>x.id===id);if(!u)return;u.status='active';delete u.reason;toast(`${u.first} reactivated.`,'#2ECC8A');refreshAdmin();}
+function approveUser(id){const u=users.find(x=>x.id===id);if(!u)return;u.status='active';toast(`${u.first} approved!`,'#2ECC8A');refreshAdmin();}
+
+function aTab(el,tab){
+  const wrap=el.closest('.adm-wrap')||el.closest('.page');
+  if(wrap){wrap.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));wrap.querySelectorAll('.atab-c').forEach(t=>t.classList.remove('active'));}
+  el.classList.add('active'); const el2=document.getElementById('tab-'+tab); if(el2)el2.classList.add('active');
+}
+function openMo(id){document.getElementById(id).classList.add('open');}
+function closeMo(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));});
+
+function exportCSV(){
+  const rows=[['Name','Email','Role','Plan','Balance','Profit','ROI','Status','Joined'],...users.filter(u=>u.role!=='admin').map(u=>{const f=u.role==='user'?calcUser(u.id):{bal:0,prf:0,roi:'—'};return[`${u.first} ${u.last}`,u.email,u.role,u.plan,fmtU(f.bal),fmtU(f.prf),f.roi,u.status,u.joined];})];
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));a.download='qx-customers.csv';a.click();
+}
+
+// ══ CHART ══
+function drawChart(){
+  const ds={'1W':[242,238,246,242,251,255,261,258,266,268,273,281,284],'1M':[200,210,205,222,216,230,226,241,236,251,261,271,284],'3M':[125,140,136,151,160,156,170,167,181,210,241,266,284],'1Y':[50,70,90,86,110,130,122,160,182,210,242,272,284]};
+  const data=ds[window._cd];
+  const W=600,H=200,mn=Math.min(...data),mx=Math.max(...data);
+  const pts=data.map((v,i)=>[(i/(data.length-1))*W,H-((v-mn)/(mx-mn))*(H-20)-10]);
+  const line=pts.map((p,i)=>i===0?`M${p[0]},${p[1]}`:`C${pts[i-1][0]+30},${pts[i-1][1]} ${p[0]-30},${p[1]} ${p[0]},${p[1]}`).join(' ');
+  const cl=document.getElementById('c-line'), cf=document.getElementById('c-fill');
+  if(cl)cl.setAttribute('d',line);
+  if(cf)cf.setAttribute('d',line+` L${W},${H} L0,${H} Z`);
+}
+function setCT(el,p){
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); window._cd=p;
+  const cp=document.getElementById('cp'); if(cp)cp.textContent=p;
+  drawChart();
+}
+
+// ══ COINS ══
+const coins=[
+  {sym:'BTC', name:'Bitcoin',   icon:'₿', color:'#F7931A', price:87420, change:2.41, bars:[60,55,70,65,80,75,90,85,95,88,92,100]},
+  {sym:'ETH', name:'Ethereum',  icon:'Ξ', color:'#627EEA', price:3280,  change:1.83, bars:[50,55,60,52,65,70,68,74,80,75,82,88]},
+  {sym:'SOL', name:'Solana',    icon:'◎', color:'#9945FF', price:148,   change:-0.62,bars:[80,75,70,65,72,68,60,65,58,55,62,57]},
+  {sym:'BNB', name:'BNB',       icon:'B', color:'#F3BA2F', price:612,   change:0.94, bars:[40,45,50,55,52,58,60,65,68,62,70,68]},
+  {sym:'ADA', name:'Cardano',   icon:'A', color:'#0033AD', price:0.58,  change:-1.12,bars:[70,65,60,68,64,58,55,60,52,48,50,45]},
+  {sym:'DOT', name:'Polkadot',  icon:'●', color:'#E6007A', price:8.42,  change:3.28, bars:[30,35,40,45,42,50,55,58,62,70,75,80]},
+  {sym:'LINK',name:'Chainlink', icon:'⬡', color:'#2A5ADA', price:18.90, change:1.55, bars:[50,52,55,60,58,65,70,68,72,75,78,82]},
+  {sym:'AVAX',name:'Avalanche', icon:'▲', color:'#E84142', price:36.40, change:-0.33,bars:[65,60,58,62,58,54,56,52,50,55,48,52]},
+];
+const fmtP=n=>{if(n>=1000)return'$'+Math.round(n).toLocaleString();if(n>=1)return'$'+n.toFixed(2);return'$'+n.toFixed(4);};
+
+// Crypto Visual Cards
+const cvEl=document.getElementById('crypto-visual');
+coins.slice(0,8).forEach(c=>{
+  const up=c.change>=0;
+  const pct=Math.abs(c.change)/5*100;
+  cvEl.innerHTML+=`<div class="cv-card">
+    <div class="cv-img" style="color:${c.color};border-color:${c.color};background:${c.color}12;">${c.icon}</div>
+    <div class="cv-name">${c.name}</div><div class="cv-sym">${c.sym}</div>
+    <div class="cv-price cv-price-${c.sym}">${fmtP(c.price)}</div>
+    <div class="cv-chg ${up?'up':'dn'} cv-chg-${c.sym}">${up?'▲ +':'▼ '}${Math.abs(c.change)}%</div>
+    <div class="cv-bar"><div class="cv-bar-fill" style="width:${Math.min(pct,100)}%;background:${up?'#2ECC8A':'#E05555'};"></div></div>
+  </div>`;
+});
+
+// Price grid
+const pgEl=document.getElementById('price-grid');
+coins.forEach(c=>{
+  const up=c.change>=0,mx=Math.max(...c.bars),mn=Math.min(...c.bars);
+  const bars=c.bars.map(b=>{const h=8+((b-mn)/(mx-mn))*38;return`<div class="bar" style="height:${h}px;background:${up?'#2ECC8A':'#E05555'}22;border-top:2px solid ${up?'#2ECC8A':'#E05555'}55;"></div>`;}).join('');
+  pgEl.innerHTML+=`<div class="pc"><div class="ci"><div class="cic" style="color:${c.color};border-color:${c.color}44;">${c.icon}</div><div><div class="cn">${c.name}</div><div class="csym">${c.sym}</div></div></div><div class="cprice cprice-${c.sym}">${fmtP(c.price)}</div><div class="cch ${up?'up':'dn'}">${up?'+':''}${c.change}%</div><div class="mc">${bars}</div></div>`;
+});
+
+// Ticker
+document.getElementById('ticker').innerHTML=[...coins,...coins].map(c=>{const up=c.change>=0;return`<div class="ti"><span class="ts">${c.sym}</span><span class="tick-p-${c.sym}">${fmtP(c.price)}</span><span class="tc ${up?'up':'dn'}">${up?'+':''}${c.change}%</span></div>`;}).join('');
+
+function renderMarket(){
+  const el=document.getElementById('live-market'); if(!el)return; el.innerHTML='';
+  coins.slice(0,6).forEach(c=>{
+    const up=c.change>=0,sl=c.bars.slice(-6),mn=Math.min(...sl),mx=Math.max(...sl);
+    const sp=sl.map(b=>{const h=4+((b-mn)/(mx-mn+1))*20;return`<div class="sp" style="height:${h}px;background:${up?'#2ECC8A':'#E05555'};opacity:.7;"></div>`;}).join('');
+    el.innerHTML+=`<div class="mrow"><div><div class="msym">${c.sym}</div><div style="font-size:9px;color:var(--mu);">${c.name}</div></div><div class="mprice">${fmtP(c.price)}</div><div class="mch ${up?'up':'dn'}">${up?'+':''}${c.change}%</div><div><div class="spark">${sp}</div></div></div>`;
+  });
+}
+renderMarket();
+
+// Live price animation
+setInterval(()=>{
+  coins.forEach((c,i)=>{
+    c.price*=(1+(Math.random()-.5)*.002);
+    document.querySelectorAll(`.cprice-${c.sym}`).forEach(el=>el.textContent=fmtP(c.price));
+    document.querySelectorAll(`.cv-price-${c.sym}`).forEach(el=>el.textContent=fmtP(c.price));
+    document.querySelectorAll(`.tick-p-${c.sym}`).forEach(el=>el.textContent=fmtP(c.price));
+  });
+},3000);
+
+// ══ FLOATING COINS ══
+function buildFloatCoins(){
+  const el=document.getElementById('float-coins'); if(!el)return;
+  el.innerHTML=coins.map((c,i)=>{
+    const left=Math.random()*100, dur=8+Math.random()*12, delay=Math.random()*8;
+    const size=30+Math.random()*20;
+    return`<div class="fc" style="left:${left}%;width:${size}px;height:${size}px;color:${c.color};border-color:${c.color};animation-duration:${dur}s;animation-delay:${delay}s;">${c.icon}</div>`;
+  }).join('');
+}
+buildFloatCoins();
+
+// ══ AI CHAT ══
+function toggleAI(){
+  const win=document.getElementById('ai-window');
+  win.classList.toggle('open');
+}
+async function sendAI(){
+  const inp=document.getElementById('ai-inp');
+  const msg=inp.value.trim(); if(!msg)return;
+  inp.value=''; addAIMsg(msg,'user');
+  document.getElementById('ai-chips').innerHTML='';
+  addAIMsg('Thinking…','thinking','ai-thinking');
+  try{
+    const proxyUrl='/.netlify/functions/ai-proxy';
+    const sysCtx='You are the Quantum X AI Advisor for quantuminvestment.org. Help with crypto markets, investment strategies, deposits, withdrawals, and platform questions. Current user: '+(currentUser?currentUser.first+' '+currentUser.last+', plan: '+currentUser.plan:'visitor')+'. Be concise and professional.';
+    const resp=await fetch(proxyUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,systemContext:sysCtx})});
+    const data=await resp.json();
+    const thinking=document.getElementById('ai-thinking');
+    if(thinking)thinking.remove();
+    addAIMsg(data.text||data.error||'Sorry, I could not process that. Please try again.','bot');
+  }catch(e){
+    const thinking=document.getElementById('ai-thinking');
+    if(thinking)thinking.remove();
+    addAIMsg('AI service temporarily unavailable. Please try again shortly.','bot');
+  }
+}
+function addAIMsg(text,cls,id=''){
+  const msgs=document.getElementById('ai-msgs');
+  const div=document.createElement('div');
+  div.className='ai-msg '+cls;
+  if(id)div.id=id;
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function a
